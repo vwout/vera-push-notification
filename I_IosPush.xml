@@ -4,8 +4,7 @@
 
 -- Include required library
 --
-local lxp = require("lxp")
-local lom = lxp.lom
+local lom = require("lxp/lom")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
