@@ -4,8 +4,9 @@
 
 -- Include required library
 --
-require("lxp/lom")
-require("crc32")
+local lxp = require("lxp")
+local lom = lxp.lom
+local CRC32 = require ("CRC32")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
@@ -535,7 +536,7 @@ function sendPushOver ( lul_device, title, msg, p, u, ut, sound, d )
     verify = "none",
     }
 
-    tabxml = lxp.lom.parse (resp[1])
+    tabxml = lom.parse (resp[1])
     
     if ( tonumber(c) == 200 ) then
        update_infos ( lul_device,"Ok", 0, 2 )
@@ -661,7 +662,7 @@ function sendProwlPush(lul_device, subject, body, priority, u )
         verify = "none",
     }
         
-        tabxml = lxp.lom.parse (resp[1])
+        tabxml = lom.parse (resp[1])
     
     if ( tonumber(c) == 200 ) then
        update_infos ( lul_device,"Ok", 0, 1 )
@@ -768,7 +769,7 @@ function getPushOverSounds(lul_device )
     log( lul_device, "URL =>" .. data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken), 4 ) 
     code, sdata = luup.inet.wget( data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken) )
     if ( code == 0 ) then
-        tabxml = lxp.lom.parse (sdata)
+        tabxml = lom.parse (sdata)
         sounds=""
         for k,v in pairs(tabxml[2]) do
             if (v["tag"]  ~= nil) then
