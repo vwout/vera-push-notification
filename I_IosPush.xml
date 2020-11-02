@@ -6,7 +6,6 @@
 --
 local lxp = require("lxp")
 local lom = lxp.lom
-local CRC32 = require ("CRC32")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
@@ -37,9 +36,7 @@ local PUSHOVER_TYPE = 2
 local TOASTY_TYPE   = 3
 local XENDAPP_TYPE  = 4
 local BOXCAR_TYPE  = 5
-    
-local PluginActive=1
-    
+
 
 -- PushOver Application Keys
 -- PLEASE : Rempace with your Own if you use this code directly.    
@@ -64,48 +61,8 @@ local function checkVersion()
 	end
 end
 
-function UpdateStats( lul_device, type )
-    data = readSettings(lul_device)
-    
-    if ( tonumber(data.stats) == 1 ) then 
-        -- Read the UI version
-        local file = io.open( UI_VERSION_FILE )
-        local uiVersion = file:read( "*n" )
-        file:close()
-        if not uiVersion then
-            uiVersion = 0
-        end 
-    
-        local url_stats = "http:" .. "\047" .. "\047" ..  "vera.filippi.org" .. "\047" .. "stats.php?guid=" .. GetGUID() .. "\038"  .. "type=" .. type .. "\038"  .. "version=" .. PLUGIN_VERSION .. "\038" .. "swversion=" .. luup.version .. "\038" .. "uiversion=" .. uiVersion
-        code, sdata = luup.inet.wget( url_stats )
-        -- log ( lul_device, "StatsUrl : " .. url_stats , 5 )
-        log ( lul_device, "Update Anonymous statistics : " .. GetGUID() .. "=>" .. tostring(type), 1 )
 
-        if ( code == 0 ) then
-            log ( lul_device, "Received Infos : " .. checkstring(sdata) , 5 )
-            local r = json.decode( sdata )
-            local motd = checkstring( b64.dec(r['Message']) )
-            PluginActive = tonumber( r['Active'] )
-    
-            writeVariable ( lul_device, ITEM_SID, "PluginMessage", motd )
-        end
-    end
-end
-    
-
--- 
--- FUNCTION
--- GUID Function
---    
-function GetGUID()
-    local crchash = ""
-    crchash = CRC32.Hash( tostring (luup.hw_key)  )
-
-    return crchash
-end
-
-
--- 
+--
 -- FUNCTION
 -- Trim Functions
 --
@@ -540,8 +497,7 @@ function sendPushOver ( lul_device, title, msg, p, u, ut, sound, d )
     
     if ( tonumber(c) == 200 ) then
        update_infos ( lul_device,"Ok", 0, 2 )
-       UpdateStats( lul_device, PUSHOVER_TYPE )    
-    else    
+    else
         update_infos ( lul_device, tabxml[2][1] .. " " .. tabxml[2]["tag"]  , 1, 2 )
     end
     
@@ -666,7 +622,6 @@ function sendProwlPush(lul_device, subject, body, priority, u )
     
     if ( tonumber(c) == 200 ) then
        update_infos ( lul_device,"Ok", 0, 1 )
-       UpdateStats( lul_device, PROWL_TYPE )
        
        writeVariable ( lul_device, ITEM_SID, "ProwlRemaining", tabxml[2]["attr"]["remaining"] or "Unknown" )
        writeVariable ( lul_device, ITEM_SID, "ProwlResetDate", tabxml[2]["attr"]["resetdate"] or "2678400" )
@@ -727,7 +682,6 @@ function sendPushToasty( lul_device, title, message, i )
 
     if ( tonumber(c) == 200 ) then
         update_infos ( lul_device,"Ok", 0, 3 )
-        UpdateStats( lul_device, TOASTY_TYPE )       
     else
         update_infos ( lul_device, resp[1] or "ERR" , 1, 3 )    
     end
@@ -818,7 +772,6 @@ function SendXendAppNotification( lul_device, subject, message, channel )
     code, sdata = luup.inet.wget( url )
     if ( code == 0 ) then
        update_infos ( lul_device,"Ok", 0, 4 )
-       UpdateStats( lul_device, XENDAPP_TYPE )       
     else
        update_infos ( lul_device, "Error" , 1, 4 )    
     end
@@ -835,8 +788,7 @@ function mystartup(lul_device)
    local data = {}
     
 -- Update Value
-   writeVariable ( lul_device, ITEM_SID, "PluginVersion", PLUGIN_VERSION ) 
-   writeVariable ( lul_device, ITEM_SID, "PluginID", GetGUID() .. '.0' )    
+   writeVariable ( lul_device, ITEM_SID, "PluginVersion", PLUGIN_VERSION )
    data = readSettings(lul_device)
     
 -- Check Template Activation
