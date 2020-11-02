@@ -1,0 +1,252 @@
+{
+  "flashicon": "http://vera.filippi.org/push.png",
+  "halloIconsDir": "pics/hallo",
+
+  "x":"2",
+  "y":"4",
+  "inScene":"1",
+  "DisplayStatus": 
+  {
+    "Service": "urn:upnp-org:serviceId:IOSPush1",
+    "Variable": "Status",
+    "MinValue": "0",
+    "MaxValue": "1"
+  },
+  "doc_url": 
+  {
+    "doc_language": 1,
+    "doc_manual": 1,
+    "doc_version": 1,
+    "doc_platform": 0,
+    "doc_page": "lighting_devices"
+  },
+  "ToggleButton": 1,
+  "Tabs": [
+    {
+      "Label": {
+        "lang_tag": "tabname_control",
+        "text": "Summary"
+      },
+      "Position": "0",
+      "TabType": "flash",
+      "ControlGroup":[
+        {
+          "id":"1",
+          "isSingle":"1",
+          "scenegroup":"1"
+        }
+        ],
+      "SceneGroup":[
+        {
+          "id":"1",
+          "top": "2",
+          "left": "0",
+          "x":"2",
+          "y":"1"
+        }
+      ],
+      "Control": [
+        {
+                    "ControlGroup": "2",
+                    "ControlType": "label",
+                  "text_align": "left",
+                    "Label": {
+                        "lang_tag": "vname",
+                        "text": "Last message : "
+                    },
+                    "Display":
+        {
+                         "Top": 45,
+                        "Left": 50,
+                        "Width": 75,
+                        "Height": 20
+                    }
+        },
+                  
+ 
+        {
+                  "ControlGroup": "2",
+                  "ControlType": "label",
+                  "text_align": "left",
+                  "Label": {
+                  "lang_tag": "vname",
+                  "text": "Plugin Version : "
+                  },
+                  "Display":
+                  {
+                  "Top": 65,
+                  "Left": 50,
+                  "Width": 75,
+                  "Height": 20
+                  }
+        },
+                 
+        {
+                  "ControlGroup": "2",
+                  "ControlType": "label",
+                  "text_align": "left",
+                  "Label": {
+                  "lang_tag": "vname",
+                  "text": "Plugin ID : "
+                  },
+                  "Display":
+                  {
+                  "Top": 85,
+                  "Left": 50,
+                  "Width": 75,
+                  "Height": 20
+                  }
+        },
+ 
+
+        {
+                    "ControlGroup": "1",
+                    "ControlType": "variable",
+                    "top": "0",
+                    "left": "0",
+                    "text_align": "left",
+                    "Label": {
+                        "lang_tag": "vname",
+                    },
+                    "Display":
+        {
+                        "Service": "urn:upnp-org:serviceId:IOSPush1",
+                        "Variable": "LastError",
+                        "Top": 45,
+                        "Left": 220,
+                        "Width": 75,
+                        "Height": 20
+                    }
+        },
+    
+ 
+        {
+                  "ControlGroup": "2",
+                  "ControlType": "variable",
+                  "top": "0",
+                  "left": "0",
+                  "text_align": "left",
+                  "Label": {
+                  "lang_tag": "vname",
+                  },
+                  "Display":
+                  {
+                  "Service": "urn:upnp-org:serviceId:IOSPush1",
+                  "Variable": "PluginVersion",
+                  "Top": 65,
+                  "Left": 220,
+                  "Width": 55,
+                  "Height": 20
+                  }
+        },                 
+                  
+ 
+        {
+                  "ControlGroup": "2",
+                  "ControlType": "variable",
+                  "top": "0",
+                  "left": "0",
+                  "text_align": "left",
+                  "Label": {
+                  "lang_tag": "vname",
+                  },
+                  "Display":
+                  {
+                  "Service": "urn:upnp-org:serviceId:IOSPush1",
+                  "Variable": "PluginID",
+                  "Top": 85,
+                  "Left": 220,
+                  "Width": 55,
+                  "Height": 20
+                  }
+          },                  
+                  
+
+         {
+                  "ControlGroup": "2",
+                  "ControlType": "variable",
+                  "top": "0",
+                  "left": "0",
+                  "text_align": "left",
+                  "Label": {
+                  "lang_tag": "vname",
+                  },
+                  "Display":
+                  {
+                  "Service": "urn:upnp-org:serviceId:IOSPush1",
+                  "Variable": "PluginMessage",
+                  "Top": 105,
+                  "Left": 50,
+                  "Width": 55,
+                  "Height": 20
+                  }
+         },                  
+                 
+                  
+                 ]
+    },
+           {
+           "Label": {
+           "lang_tag": "edit_prowl",
+           "text": "Prowl"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "prowledit"
+           },
+           {
+           "Label": {
+           "lang_tag": "edit_pushover",
+           "text": "PushOver"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "pushoveredit"
+           },
+           {
+           "Label": {
+           "lang_tag": "edit_toasty",
+           "text": "Toasty"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "toastyedit"
+           },
+           
+           {
+           "Label": {
+           "lang_tag": "edit_xend",
+           "text": "XendApp"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "xendedit"
+           },
+
+           {
+           "Label": {
+           "lang_tag": "edit_message",
+           "text": "Send Message"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "testmessageedit"
+           },
+
+           
+     {
+      "Label": {
+        "lang_tag": "advanced",
+        "text": "Advanced"
+      },
+      "Position": "3",
+      "TabType": "javascript",
+      "ScriptName": "shared.js",
+      "Function": "advanced_device"
+    },
+           
+   ],
+  "DeviceType": "urn:schemas-upnp-org:service:IOSPush:1",
+  "device_type": "urn:schemas-upnp-org:service:IOSPush:1"
+}
+

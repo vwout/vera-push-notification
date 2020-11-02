@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+       <deviceType>urn:schemas-upnp-org:device:IOSPush:1</deviceType>
+       <friendlyName>Push Notification</friendlyName>
+      <staticJson>D_IosPush.json</staticJson> 
+      <friendlyName>Push Notification Device</friendlyName>
+      <manufacturer>Filippi.org</manufacturer>
+      <manufacturerURL></manufacturerURL>
+      <modelDescription>PushNotification</modelDescription>
+      <modelName>PushNotification</modelName>
+      <modelNumber>1.0</modelNumber>
+        <serviceList>
+            <service>
+                <serviceType>urn:schemas-upnp-org:service:IOSPush:1</serviceType>
+                <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
+                <SCPDURL>S_IosPush.xml</SCPDURL>
+            </service>
+          </serviceList>
+        <implementationList>
+         <implementationFile>I_IosPush.xml</implementationFile>
+        </implementationList>
+        <presentationURL>http://vera.filippi.org/ios.html</presentationURL>
+    </device>
+</root>
