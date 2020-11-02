@@ -5,12 +5,14 @@
 -- Include required library
 --
 require("lxp/lom")
-require ("crc32")
+require("crc32")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
 local json = require("json")
 local b64 = require("base64")
+local ltn12 = require("ltn12")
+
 
 -- Template Inclusion
 --local Vt = require("veraTemplate")
@@ -415,6 +417,7 @@ end
 --
 function ExpandTemplate(lul_device, msg)
     local msgx = msg
+    local Vt = require("veraTemplate")
     
     log( lul_device, "Template Translating: " .. msgx, 1 )
     
@@ -581,9 +584,6 @@ function sendBoxcarPush(lul_device, title, long_message, source_name, sound, ico
    
    --	put here your api key
 	local user_credentials = tostring( data.boxcartoken )
-
-	local https = require 'ssl.https'
-	local ltn12 = require 'ltn12'
 
 	local request_body = "user_credentials=" .. url_encode(user_credentials) .. "\038"  .. "notification[title]=" .. title .. "\038" .. "notification[long_message]=" .. long_message
 	
