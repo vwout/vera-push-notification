@@ -20,12 +20,14 @@ var XendStartPos        = CommonStartPos + nbCommonItem;
 var ToastyStartPos      = XendStartPos + nbXendItem;
 var PushOverStartPos    = ToastyStartPos + nbToastyItem;
 var ProwlStartPos       = PushOverStartPos + nbPushOverItem;
+var BoxcarStartPos      = ProwlStartPos + nbProwlItem;
 
 var nbCommonItem          = 1;
 var nbXendItem            = 8;
 var nbToastyItem          = 3;
 var nbPushOverItem        = 7;
 var nbProwlItem           = 6; 
+var nbBoxcarItem          = 8; 
 
 var aInfos = new Array( 
                        ["<B>Template state</B>","",'UseTemplate'],                                      // Common  0                      
@@ -52,7 +54,15 @@ var aInfos = new Array(
                        ["Add Vera serial to subject","",'ProwlAddSerialToSubject'],                     // 2
                        ["Default Priority","",'ProwlDefaultPriority'],                                  // 3
                        ["Remaining Prowl messages","",'ProwlRemaining'],                                // 4
-                       ["Reset Date","",'ProwlResetDate']                                               // 5
+                       ["Reset Date","",'ProwlResetDate'],                                              // 5
+                       ["<B>Token</B>","",'BoxcarToken'],                                               // Boxcar 0
+                       ["<B>Application Name</B> ","",'BoxcarApplication'],                             // 1
+                       ["Add Vera serial to subject","",'BoxcarAddSerialToSubject'],                    // 2
+                       ["Remaining Boxcar messages","",'BoxcarRemaining'],                              // 3
+                       ["Reset Date","",'BoxcarResetDate'],                                             // 4
+                       ["Source Name","",'BoxcarSourceName'],                                           // 5
+                       ["Default Sound","",'BoxcarDefaultSound'],                                       // 6
+                       ["Default Icon","",'BoxcarDefaultIcon']                                          // 7
                        );
 
 
@@ -246,6 +256,7 @@ function testmessageedit (device)
     html += '<option value=2>Push Over</option>';
     html += '<option value=3>Toasty</option>';
     html += '<option value=4>XendApp</option>';
+    html += '<option value=5>Boxcar</option>';
     html += '</select>';
 
     html += '</td>';
@@ -722,6 +733,96 @@ function prowledit (device)
     set_panel_html (html);
 }
 
+//*****************************************************************************
+//  function: boxcarledit
+//*****************************************************************************
+function boxcaredit (device)
+{
+    ReadValues( device );
+    
+    var html = '';
+    
+    {
+        // we create a status area
+        html += '<div><p id="status_display" style="width:80%; position:relative; margin-left:auto; margin-right:auto; table-layout:fixed; text-align:center; border-radius: 5px; color:black"></div>';
+        
+        // we create a table which will contain all variables
+        html += '<table style="width:80%; position:relative; margin-left:auto; margin-right:auto; border-radius: 5px">';
+        
+        // show titles
+        html += '<tr>';
+        html += '<th style="font-weight:bold; text-align:left; width:30%">Prowl Parameters :</td>';
+        html += '<th style="font-weight:bold; text-align:left; width:70%"></td>';
+        html += '</tr>';
+        
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos][0] + '</td>';
+        html += '<td><input type="text" id="v' + i + '" value="' + aInfos[BoxcarStartPos][1] + '" style="width:95%; text-align:left" onkeyup="save_var(' + device + ', ' +  BoxcarStartPos  + ', this.value)" /></td>';
+        html += '</tr>';
+ 
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos+1][0] + '</td>';
+        html += '<td><input type="text" id="v' + i + '" value="' + aInfos[BoxcarStartPos+1][1] + '" style="width:95%; text-align:left" onkeyup="save_var(' + device + ', ' +  (BoxcarStartPos+1)  + ', this.value)" /></td>';
+        html += '</tr>';
+		
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos+5][0] + '</td>';
+        html += '<td><input type="text" id="v' + i + '" value="' + aInfos[BoxcarStartPos+5][1] + '" style="width:95%; text-align:left" onkeyup="save_var(' + device + ', ' +  (BoxcarStartPos+5)  + ', this.value)" /></td>';
+        html += '</tr>';
+		
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos+6][0] + '</td>';
+        html += '<td><input type="text" id="v' + i + '" value="' + aInfos[BoxcarStartPos+6][1] + '" style="width:95%; text-align:left" onkeyup="save_var(' + device + ', ' +  (BoxcarStartPos+6)  + ', this.value)" /></td>';
+        html += '</tr>';
+		
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos+7][0] + '</td>';
+        html += '<td><input type="text" id="v' + i + '" value="' + aInfos[BoxcarStartPos+7][1] + '" style="width:95%; text-align:left" onkeyup="save_var(' + device + ', ' +  (BoxcarStartPos+7)  + ', this.value)" /></td>';
+        html += '</tr>';
+                
+        html += '<tr>';
+        html += '<td>' + aInfos[BoxcarStartPos+2][0] + '</td>';
+        html += '<td>';
+        html += '<select name="select_serial" onChange="save_var(' + device + ', ' +  (BoxcarStartPos+2)  + ', this.options[this.selectedIndex].value );">';
+        html += '<option ';
+        if ( Number(aInfos[BoxcarStartPos+2][1]) == 0 ) { html += 'selected="selected"'; }           
+        html += ' value="0">No</option>';
+        html += '<option ';
+        if ( Number(aInfos[BoxcarStartPos+2][1]) == 1 ) { html += 'selected="selected"'; }                        
+        html += 'value="1">Yes</option>';
+        html += '</select>';
+        html += '</td>';
+        html += '</tr>';
+        
+        // show save button
+        html += '<tr>';
+        html += '<td colspan="2"><input type="button" value="SAVE" onClick="saveall_var(' + device + ',' +  BoxcarStartPos + ',' + nbBoxcarItem + ')" style="margin-left:87%; background:#3295F8; color:white; text-align:center; border-radius:5px; padding-top:4px; text-transform:capitalize; font-family:Arial; font-size:14px; cursor:pointer; -khtml-border-radius: 5px; -webkit-border-radius:5px"/></td>';
+        html += '</tr>';
+        html += '</table>';
+    }
+    
+    html += '<BR><P><BR>';
+    
+    //
+    html += '<table id="count" border=0 position:relative; margin-left:auto; margin-right:auto; border-radius: 5px>';
+    html += '<tr>';
+    html += "<td>Number of message(s) sent : </td>";
+    html += "<td>";    
+    html += get_device_state (device, IOS_UPnP_S, "BoxcarCount", 1);
+    html += "</td>";
+    html += "<td>" ;      
+    html += '&nbsp;&nbsp;(<A href="#" onclick="resetcount_boxcar(' + device + ');">Reset</A>)'
+    html += '</td></tr>';
+    html += '</table>';
+    html += '<table>';
+    html += '<tr><td>';
+    html += 'You have ' + aInfos[BoxcarStartPos+3][1] + ' message(s) available, the counter will be reseted to 1000 on ' +  timeConverter( aInfos[BoxcarStartPos+4][1] )
+    html += '</td></tr>';        
+    html += '<tr><td>More informations on service : <A HREF="https://boxcar.io/" target="_blank">Boxcar web site.</tr></td>'
+    html += '</table>';
+    
+    set_panel_html (html);
+}
 
 
 //*****************************************************************************
@@ -743,6 +844,21 @@ function resetcount_pushover (device)
     
 }
 
+function resetcount_boxcar (device)
+{
+	
+    var xmlHttp = null;
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", ''+ ipaddress +'id=lu_action&DeviceNum=' + device + '&serviceId=' + IOS_UPnP_S + '&action=ResetBoxcarCount', false );
+    xmlHttp.send( null );
+    
+    var x=document.getElementById('count').rows
+    var y=x[0].cells
+    y[1].innerHTML="0"
+    
+    showStatus ("COUNT RESET DONE...", false);    
+    
+}
 
 function resetcount_prowl (device)
 {
@@ -815,6 +931,9 @@ function test_message (device)
         case 3:
             test_xend (device, t);
             break;
+        case 4:
+            test_boxcar (device, t);
+            break;
             
             
         default:
@@ -823,7 +942,15 @@ function test_message (device)
     
 }
 
+function test_boxcar (device, m)
+{
+    var xmlHttp = null;
+    xmlHttp = new XMLHttpRequest();
+    url = ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendBoxcarNotification",{ Title= "Title", Message="' + encodeURIComponent(m) + '"}, '+ device +')';
 
+    xmlHttp.open( "GET",url , false );
+    xmlHttp.send( null );
+}
 
 function test_xend (device, m)
 {

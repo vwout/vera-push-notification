@@ -187,6 +187,14 @@
     },
            {
            "Label": {
+           "lang_tag": "edit_boxcar",
+           "text": "Boxcar"
+           },
+           "TabType": "javascript",
+           "ScriptName": "J_IosPush.js",
+           "Function": "boxcaredit"
+           },{
+           "Label": {
            "lang_tag": "edit_prowl",
            "text": "Prowl"
            },

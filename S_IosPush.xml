@@ -20,6 +20,42 @@
     </serviceStateTable>
       <actionList>
         <action>
+            <name>SendBoxcarNotification</name>
+            <argumentList>
+                <argument>
+                    <name>Title</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>Message</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>SourceName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>Sound</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>Icon</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>URL</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>string</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+
+        <action>
             <name>SendProwlNotification</name>
             <argumentList>
                 <argument>

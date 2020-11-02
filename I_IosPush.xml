@@ -5,7 +5,7 @@
 -- Include required library
 --
 require("lxp/lom")
-local CRC32 = require("crc32")
+require ("crc32")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
@@ -22,8 +22,9 @@ local UI_VERSION_FILE = "/etc/cmh/ui"
 -- Constant definitions
 --
 local ITEM_SID = "urn:upnp-org:serviceId:IOSPush1"
-local PLUGIN_VERSION  = "0.98"    
+local PLUGIN_VERSION  = "1.01"    
 local PROWL_ERR = " - (Prowl)" 
+local BOXCAR_ERR = " - (Boxcar)" 
 local PUSHOVER_ERR = " - (PushOver)"
 local TOASTY_ERR = " - (Toasty)" 
 local XENDAPP_ERR = " - (XendApp)"    
@@ -32,6 +33,7 @@ local PROWL_TYPE    = 1
 local PUSHOVER_TYPE = 2 
 local TOASTY_TYPE   = 3
 local XENDAPP_TYPE  = 4
+local BOXCAR_TYPE  = 5
     
 local PluginActive=1
     
@@ -227,10 +229,12 @@ end
 -- 2 : PushOver
 -- 3 : Toasty
 -- 4 : XendApp    
+-- 5 : Boxcar    
 --    
 function update_infos ( lul_device, e, iserror, service )
 
 local p_count = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0 )
+local b_count = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0 )
 local po_count = readVariableOrInit(lul_device,ITEM_SID,"PushOverCount", 0 )
 local to_count = readVariableOrInit(lul_device,ITEM_SID,"ToastyCount", 0 )
 local x_count = readVariableOrInit(lul_device,ITEM_SID,"XendAppCount", 0 )
@@ -266,6 +270,11 @@ if ( iserror == 0) then
         x_count = x_count + 1
         writeVariable ( lul_device, ITEM_SID, "XendAppCount", x_count )
     end       
+
+    if ( service == 5 ) then
+        b_count = b_count + 1
+        writeVariable ( lul_device, ITEM_SID, "BoxcarCount", b_count )
+    end       
 end
 
 if ( iserror == 2) then
@@ -288,6 +297,9 @@ end
     
 if ( service == 4 ) then
     l = l .. XENDAPP_ERR
+end 
+if ( service == 5 ) then
+    l = l .. BOXCAR_ERR
 end 
     
     
@@ -317,6 +329,15 @@ function readSettings(lul_device)
   data.prowlcount                   = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0 )
   data.prowlremaining               = readVariableOrInit(lul_device,ITEM_SID,"ProwlRemaining", 0 )
   data.prowlresetdate               = readVariableOrInit(lul_device,ITEM_SID,"ProwlResetDate", "2678400" )
+
+  data.boxcartoken         			= readVariableOrInit(lul_device,ITEM_SID,"BoxcarToken", "xxxxxxxxxxxxxx" )
+  data.boxcarapplication            = readVariableOrInit(lul_device,ITEM_SID,"BoxcarApplication", "Vera (Boxcar)")
+  data.boxcarcount                  = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0 )
+  data.boxcarremaining              = readVariableOrInit(lul_device,ITEM_SID,"BoxcarRemaining", 0 )
+  data.boxcarsourcename             = readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName", "" )
+  data.boxcardefaultsound           = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound", "" )
+  data.boxcardefaulticon            = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon", "" )
+  data.boxcaraddserialtosubject     = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAddSerialToSubject", 0 )
 
   data.pushoveruserkey              = readVariableOrInit(lul_device,ITEM_SID,"PushOverUserKey", "xxxxxxxxxxxxxx" )
   data.pushovercustomappkey         = readVariableOrInit(lul_device,ITEM_SID,"PushOverCustomAppKey", "xxxxxxxxxxxxxx" )
@@ -350,6 +371,7 @@ function readSettings(lul_device)
   data.timeerror                    = readVariableOrInit(lul_device,ITEM_SID,"TimeError", 0)
   data.timesend                     = readVariableOrInit(lul_device,ITEM_SID,"TimeSend", 0)
   data.prowlapiurl                  = readVariableOrInit(lul_device,ITEM_SID,"ProwlAPIUrl", "https:" .. "\047" .. "\047"  ..  "api.prowlapp.com" .. "\047"  .. "publicapi" .. "\047"  .. "add" )  
+  data.boxcarapiurl                  = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAPIUrl", "https:" .. "\047" .. "\047"  ..  "new.boxcar.io" .. "\047"  .. "api" .. "\047"  .. "notifications" )  
   data.pushoverapiurl               = readVariableOrInit(lul_device,ITEM_SID,"PushOverAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "messages.xml") 
   data.pushoversoundapiurl          = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "sounds.xml") 
   data.toastyapiurl                 = readVariableOrInit(lul_device,ITEM_SID,"ToastyAPIUrl", "http:" .. "\047" .. "\047" ..  "api.supertoasty.com" .. "\047" .. "notify" .. "\047" ) 
@@ -418,6 +440,17 @@ function readVariableOrInit(lul_device, devicetype, name, defaultValue)
  end
  log ( lul_device, "Read Var : " .. tostring(name) .. "=>" .. tostring(var), 5 )
  return var
+end
+
+-- utility method to make text URL friendly
+function url_encode(str)
+  if (str) then
+	str = string.gsub (str, "\n", "\r\n")
+	str = string.gsub (str, "([^%w ])",
+		function (c) return string.format ("%%%02X", string.byte(c)) end)
+	str = string.gsub (str, " ", "+")
+  end
+  return str   
 end
     
 -- 
@@ -509,6 +542,78 @@ function sendPushOver ( lul_device, title, msg, p, u, ut, sound, d )
     end
     
 end    
+
+-- 
+-- FUNCTION
+-- Send notification using Boxcar service
+-- 
+function sendBoxcarPush(lul_device, title, long_message, source_name, sound, icon_url, open_url ) 
+	
+   local data = {}
+   local resp = {}
+   data = readSettings(lul_device)
+   local application = tostring( data.boxcarapplication )
+   
+   if ( title == nil or title == "") then
+        title = ""
+   end
+   if ( long_message == nil or long_message == "") then
+        long_message = ""
+   end
+   if ( source_name == nil or source_name == "") then
+        source_name = readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName","")
+    end
+   if ( sound == nil or sound == "") then
+        sound = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound","")
+    end
+   if ( icon_url == nil or icon_url == "") then
+        icon_url = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon","")
+    end
+   if ( open_url == nil or open_url == "") then
+        open_url = ""
+    end
+	
+	if ( tonumber(data.boxcaraddserialtosubject)  ~= 0) then
+     source_name = source_name .. " \091" .. luup.pk_accesspoint .. "\093 "
+   end
+   
+   log( lul_device, "BoxcarNotification(" .. (source_name) ..")[" .. application .. "] Subject(" .. title .. ") Body(" .. long_message .. ")", 1 )  
+   
+   --	put here your api key
+	local user_credentials = tostring( data.boxcartoken )
+
+	local https = require 'ssl.https'
+	local ltn12 = require 'ltn12'
+
+	local request_body = "user_credentials=" .. url_encode(user_credentials) .. "\038"  .. "notification[title]=" .. title .. "\038" .. "notification[long_message]=" .. long_message
+	
+	if (string.len(sound) > 0) then 
+		request_body = request_body .. "\038" .. "notification[sound]=" .. url_encode(sound) 
+	end
+	if (string.len(source_name) > 0) then 
+		request_body = request_body .. "\038" .. "notification[source_name]=" .. url_encode(source_name) 
+	end
+	if (string.len(icon_url) > 0) then 
+		request_body = request_body .. "\038" .. "notification[icon_url]=" .. url_encode(icon_url) 
+	end
+	if (string.len(open_url) > 0) then 
+		request_body = request_body .. "\038" .. "notification[open_url]=" .. url_encode(open_url) 
+	end
+	
+	local response_body = {}
+
+	b, c, h = https.request {
+	  url = data.boxcarapiurl,
+	  method = 'POST',
+	  headers = {
+	    ["Content-Type"] =  "application/x-www-form-urlencoded",
+		["Content-Length"] = string.len(request_body)
+		},
+	  source = ltn12.source.string(request_body),
+	  sink = ltn12.sink.table(response_body),
+	}
+   
+end
     
 -- 
 -- FUNCTION
@@ -632,6 +737,10 @@ end
 function resetProwlCount(lul_device )
     writeVariable ( lul_device, ITEM_SID, "ProwlCount", 0 )
 end    
+
+function resetBoxcarCount(lul_device )
+    writeVariable ( lul_device, ITEM_SID, "BoxcarCount", 0 )
+end    
     
 function resetPushOverCount(lul_device )
     writeVariable ( lul_device, ITEM_SID, "PushOverCount", 0 )
@@ -747,6 +856,14 @@ end
 </functions>
     <startup>mystartup</startup>
     <actionList>
+        <action>
+            <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
+            <name>SendBoxcarNotification</name>
+            <run>
+                sendBoxcarPush(lul_device,lul_settings.Title or "", lul_settings.Message or "", lul_settings.SourceName or readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName",""), lul_settings.Sound or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound",""), lul_settings.Icon or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon",""), lul_settings.URL or ""  )
+            </run>
+        </action>
+
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>SendProwlNotification</name>

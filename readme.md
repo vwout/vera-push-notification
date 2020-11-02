@@ -8,3 +8,4 @@ The original post that introduced this Vera plugin was done on [http://forum.mic
 
 ## Credits
 Credits for this plugin go to the original author [massalia](//filippi.org).
+Credits for the Boxcar support go to [jonferreira](https://github.com/jonferreira/Push-Notification-Plugin).
