@@ -23,7 +23,7 @@ local UI_VERSION_FILE = "/etc/cmh/ui"
 -- Constant definitions
 --
 local ITEM_SID = "urn:upnp-org:serviceId:IOSPush1"
-local PLUGIN_VERSION  = "1.01"    
+local PLUGIN_VERSION  = "1.02"
 local PROWL_ERR = " - (Prowl)" 
 local BOXCAR_ERR = " - (Boxcar)" 
 local PUSHOVER_ERR = " - (PushOver)"
