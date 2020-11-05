@@ -1,5 +1,5 @@
 {
-	"default_icon": "http://vera.filippi.org/push.png",
+	"default_icon": "https://cdn.jsdelivr.net/gh/vwout/vera-push-notification/icons/push.png",
 	"halloIconsDir" : "pics/hallo",
 
 	"x" : "2",

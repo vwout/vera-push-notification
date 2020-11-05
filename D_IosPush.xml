@@ -9,8 +9,8 @@
        <friendlyName>Push Notification</friendlyName>
       <staticJson>D_IosPush.json</staticJson> 
       <friendlyName>Push Notification Device</friendlyName>
-      <manufacturer>Filippi.org</manufacturer>
-      <manufacturerURL></manufacturerURL>
+      <manufacturer>Massalia</manufacturer>
+      <manufacturerURL>Filippi.org</manufacturerURL>
       <modelDescription>PushNotification</modelDescription>
       <modelName>PushNotification</modelName>
       <modelNumber>1.0</modelNumber>
@@ -24,6 +24,6 @@
         <implementationList>
          <implementationFile>I_IosPush.xml</implementationFile>
         </implementationList>
-        <presentationURL>http://vera.filippi.org/ios.html</presentationURL>
+        <presentationURL>https://github.com/vwout/vera-push-notification/</presentationURL>
     </device>
 </root>

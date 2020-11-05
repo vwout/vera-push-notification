@@ -334,9 +334,9 @@ function readSettings(lul_device)
   data.pushoverapiurl               = readVariableOrInit(lul_device,ITEM_SID,"PushOverAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "messages.xml") 
   data.pushoversoundapiurl          = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "sounds.xml") 
   data.toastyapiurl                 = readVariableOrInit(lul_device,ITEM_SID,"ToastyAPIUrl", "http:" .. "\047" .. "\047" ..  "api.supertoasty.com" .. "\047" .. "notify" .. "\047" ) 
-  data.toastyimageurl               = readVariableOrInit(lul_device,ITEM_SID,"ToastyImageUrl", "http:" .. "\047" .. "\047" ..  "vera.filippi.org" .. "\047" .. "Logo-Toasty.png" ) 
+  data.toastyimageurl               = readVariableOrInit(lul_device,ITEM_SID,"ToastyImageUrl", "https:" .. "\047" .. "\047" .. "cdn.jsdelivr.net" .. "\047" .. "gh" .. "\047" .. "vwout" .. "\047" .. "vera-push-notification" .. "\047" .. "icons" .. "\047" .. "toasty.png" )
   data.xendapiurl                   = readVariableOrInit(lul_device,ITEM_SID,"XendAPAPIPUrl", "http:" .. "\047" .. "\047" ..  "xendapp.com" .. "\047" ) 
-        
+
   data.stats                        = readVariableOrInit(lul_device,ITEM_SID,"Stats", 1 )
 
   data.debug                        = readVariableOrInit(lul_device,ITEM_SID,"Debug", 0)
