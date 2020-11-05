@@ -9,6 +9,10 @@ var IosPush = (function (api) {
 
 	//local ip
 	var ipaddress = api.getDataRequestURL();
+	if (!ipaddress.endsWith('?'))
+	{
+	    ipaddress += '?';
+	}
 
 	//global variabless
 	var v_installid="";
