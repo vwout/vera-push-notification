@@ -302,48 +302,54 @@ var IosPush = (function (api) {
 		
 		var xmlHttp = null;
 		xmlHttp = new XMLHttpRequest();
-		url =  ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendXendAppNotification",{ Subject="", Message="' +  encodeURIComponent(m) + '", Channel="' + '" },'+ device +')';
+		url =  ''+ ipaddress +'id=action&serviceId=urn:upnp-org:serviceId:IOSPush1&DeviceNum=' + device + '&action=SendXendAppNotification' +
+               '&Subject=' +
+               '&Message="' +  encodeURIComponent(m) + '"' +
+               '&Channel="' + '"';
 		xmlHttp.open( "GET",url , false );
 		xmlHttp.send( null );
-		
-		// // api.runUpnpCode(''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendXendAppNotification",{ Subject="", Message="' +  encodeURIComponent(m) + '", Channel="' + '" },'+ device +')');
 	}
 
 	function test_pushover (device, m)
 	{
-		// luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendPushOverNotification",{ Title= "Title", Message="Message", Priority=1, URL="", URLTitle=""}, 99)
 		var xmlHttp = null;
 		xmlHttp = new XMLHttpRequest();
-		url =  ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendPushOverNotification",{ Subject= "Test Subject", Message="' +  encodeURIComponent(m)  + '", Priority="' + mytablePo_select[1][1]  + '", URL="", URLTitle="", Sound="' +  mytablePo_static[0][1] + '"},'+ device +')';        
+		url =  ''+ ipaddress +'id=action&serviceId=urn:upnp-org:serviceId:IOSPush1&DeviceNum=' + device + '&action=SendPushOverNotification' +
+               '&Title="Test Subject"' +
+               '&Message="' +  encodeURIComponent(m) + '"' +
+               '&Priority=' + mytablePo_select[1][1] +
+               '&URL=""' +
+               '&URLTitle=""' +
+               '&Sound="' +  mytablePo_static[0][1] + '"';
 		xmlHttp.open( "GET",url , false );
 		xmlHttp.send( null );
-		
-		// // api.runUpnpCode(''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendPushOverNotification",{ Subject= "Test Subject", Message="' +  encodeURIComponent(m)  + '", Priority="' + mytablePo_select[1][1]  + '", URL="", URLTitle="", Sound="' +  mytablePo_static[0][1] + '"},'+ device +')');
 	}
 
 	function test_prowl (device, m)
 	{
-		// luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendProwlNotification",{ Event= "Title", Description="Message", Priority=2, URL=""}, 99)
 		var xmlHttp = null;
 		xmlHttp = new XMLHttpRequest();
-		url = ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendProwlNotification",{ Event= "Title", Description="' + encodeURIComponent(m) + '", Priority="' + mytableProwl_select[1][1] + '", URL=""}, '+ device +')';
-
+		url =  ''+ ipaddress +'id=action&serviceId=urn:upnp-org:serviceId:IOSPush1&DeviceNum=' + device + '&action=SendProwlNotification' +
+               '&Event=Title' +
+               '&Description="' +  encodeURIComponent(m) + '"' +
+               '&Priority=' + mytableProwl_select[1][1] +
+               '&URL=""';
 		xmlHttp.open( "GET",url , false );
 		xmlHttp.send( null );
-		
-		// api.runUpnpCode(''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendProwlNotification",{ Event= "Title", Description="' + encodeURIComponent(m) + '", Priority="' + mytableProwl_select[1][1] + '", URL=""}, '+ device +')');
 	}
 
 	function test_toasty (device, m)
 	{
 		var xmlHttp = null;
 		xmlHttp = new XMLHttpRequest();
-		url = ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendToastyNotification",{ Title= "Title", Message="' + encodeURIComponent(m) + '", ImageURL="" }, '+ device +')';
+		url =  ''+ ipaddress +'id=action&serviceId=urn:upnp-org:serviceId:IOSPush1&DeviceNum=' + device + '&action=SendToastyNotification' +
+               '&Title=Title' +
+               '&Message="' +  encodeURIComponent(m) + '"' +
+               '&ImageURL=""';
 		xmlHttp.open( "GET",url , false );
 		xmlHttp.send( null );
-
-		// api.runUpnpCode(''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.call_action("urn:upnp-org:serviceId:IOSPush1", "SendToastyNotification",{ Title= "Title", Message="' + encodeURIComponent(m) + '", ImageURL="" }, '+ device +')');
 	}
+
 	//*****************************************************************************
 	// function: timestamp converter
 	//*****************************************************************************

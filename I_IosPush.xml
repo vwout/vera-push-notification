@@ -828,7 +828,7 @@ end
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>SendPushOverNotification</name>
             <run>
-                sendPushOver( lul_device, lul_settings.Title or "", lul_settings.Message or "", lul_settings.Priority , lul_settings.URL or "" , lul_settings.URLTitle or "", lul_settings.Sound or "", lul_settings.DeviceName or "" )
+                sendPushOver( lul_device, lul_settings.Title or "", lul_settings.Message or "", lul_settings.Priority or readVariableOrInit(lul_device,ITEM_SID,"PushOverDefaultPriority", 0 ), lul_settings.URL or "" , lul_settings.URLTitle or "", lul_settings.Sound or "", lul_settings.DeviceName or "" )
             </run>
         </action>
 
