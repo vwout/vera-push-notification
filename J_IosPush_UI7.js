@@ -27,14 +27,12 @@ var IosPush = (function (api) {
 
 	var nbCommonItem          = 1;
 	var nbXendItem            = 8;
-	var nbToastyItem          = 3;
 	var nbPushOverItem        = 7;
 	var nbProwlItem           = 6; 
 
 	var CommonStartPos      = 0;
 	var XendStartPos        = CommonStartPos + nbCommonItem;
-	var ToastyStartPos      = XendStartPos + nbXendItem;
-	var PushOverStartPos    = ToastyStartPos + nbToastyItem;
+	var PushOverStartPos    = XendStartPos + nbXendItem;
 	var ProwlStartPos       = PushOverStartPos + nbPushOverItem;
 	
 	var aInfos = new Array( 
@@ -47,9 +45,6 @@ var IosPush = (function (api) {
 						   ["Default Channel","",'XendAppDefaultChannel'],                                  // 5
 						   ["Count","",'XendAppCount'],                                                     // 6
 						   ["Add Vera serial to subject","",'XendAddSerialToSubject'],                      // 7
-						   ["<B>Device ID</B>","",'ToastyDeviceID'],                                        // Toasty 0
-						   ["<B>Application Name </B>","",'ToastyApplication'],                             // 1
-						   ["Add Vera serial to subject","",'ToastyAddSerialToSubject'],                    // 2
 						   ["<B>User Key</B>","",'PushOverUserKey'],                                        // PuhOver 0
 						   ["<B>Application Name </B>","",'PushOverApplication'],                           // 1
 						   ["Add Vera serial to subject","",'PushOverAddSerialToSubject'],                  // 2
@@ -239,23 +234,6 @@ var IosPush = (function (api) {
 		
 	}
 
-	function resetcount_toasty (device)
-	{	
-		var xmlHttp = null;
-		xmlHttp = new XMLHttpRequest();
-		xmlHttp.open( "GET", ''+ ipaddress +'id=lu_action&DeviceNum=' + device + '&serviceId=' + IOS_UPnP_S + '&action=ResetToastyCount', false );
-		xmlHttp.send( null );
-		
-		// // api.runUpnpCode('' + ipaddress +'id=lu_action&DeviceNum=' + device + '&serviceId=' + IOS_UPnP_S + '&action=ResetToastyCount');
-		
-		var x=document.getElementById('count').rows;
-		var y=x[0].cells;
-		y[1].innerHTML="0";
-		
-		showStatus ("COUNT RESET DONE...", false);    
-		
-	}
-
 	function resetcount_xend (device)
 	{	
 		var xmlHttp = null;
@@ -270,8 +248,8 @@ var IosPush = (function (api) {
 		y[1].innerHTML="0";
 		
 		showStatus ("COUNT RESET DONE...", false);    
-		
 	}
+  
 	//*****************************************************************************
 	//  function: Message Test
 	//*****************************************************************************
@@ -288,7 +266,7 @@ var IosPush = (function (api) {
 				test_pushover (device, t);
 				break;
 			case 2:
-				test_toasty (device, t);
+				//Toasy is deprecated
 				break;
 			case 3:
 				test_xend (device, t);
@@ -334,18 +312,6 @@ var IosPush = (function (api) {
                '&Description="' +  encodeURIComponent(m) + '"' +
                '&Priority=' + mytableProwl_select[1][1] +
                '&URL=""';
-		xmlHttp.open( "GET",url , false );
-		xmlHttp.send( null );
-	}
-
-	function test_toasty (device, m)
-	{
-		var xmlHttp = null;
-		xmlHttp = new XMLHttpRequest();
-		url =  ''+ ipaddress +'id=action&serviceId=urn:upnp-org:serviceId:IOSPush1&DeviceNum=' + device + '&action=SendToastyNotification' +
-               '&Title=Title' +
-               '&Message="' +  encodeURIComponent(m) + '"' +
-               '&ImageURL=""';
 		xmlHttp.open( "GET",url , false );
 		xmlHttp.send( null );
 	}
@@ -411,13 +377,6 @@ var IosPush = (function (api) {
 		showStatus ("UNSAVED CHANGES!", true);
 		//_console("New Vaue =======>" + newValue );
 		mytablePo_static[index][1] = newValue;
-	}
-
-	function save_to (deviceid, index, newValue)
-	{
-		showStatus ("UNSAVED CHANGES!", true);
-		//_console("New Vaue =======>" + newValue );
-		aInfos[ToastyStartPos+index][1]= newValue
 	}
 
 	function save_var (deviceid, index, newValue)
@@ -534,25 +493,6 @@ var IosPush = (function (api) {
 	  window.setTimeout(finished, 1000);
 	}
 
-	function saveall_to (luupcode,device)
-	{
-		showStatus ("SAVING...", false);
-		//nbToastyItem
-		for (i = 0; i < nbToastyItem; i++)
-		{
-			var xmlHttp = null;
-			xmlHttp = new XMLHttpRequest();
-			//_console("=======> ToastySave[" + i + "]; " + aInfos[ToastyStartPos+i][1] );
-			xmlHttp.open( "GET", ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.variable_set("'+ IOS_UPnP_S +'","'+ aInfos[ToastyStartPos+i][2]+'","'+ aInfos[ToastyStartPos+i][1] +'",'+ device +')', false );
-			xmlHttp.send( null );
-			
-			// api.runUpnpCode(''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.variable_set("'+ IOS_UPnP_S +'","'+ aInfos[ToastyStartPos+i][2]+'","'+ aInfos[ToastyStartPos+i][1] +'",'+ device +')');
-		}
-
-		function finished () {showStatus ("ALL CHANGES SAVED!", false);}
-		window.setTimeout(finished, 1000);
-	}
-
 	function saveall_xend (luupcode,device)
 	{
 		showStatus ("SAVING...", false);
@@ -560,7 +500,7 @@ var IosPush = (function (api) {
 		{
 			var xmlHttp = null;
 			xmlHttp = new XMLHttpRequest();
-			//_console("=======> ToastySave[" + i + "]; " + aInfos[XendStartPos+i][1] );
+			//_console("=======> SaveXend[" + i + "]; " + aInfos[XendStartPos+i][1] );
 			xmlHttp.open( "GET", ''+ ipaddress +'id=lu_action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunLua&Code=luup.variable_set("'+ IOS_UPnP_S +'","'+ aInfos[XendStartPos+i][2]+'","'+ aInfos[XendStartPos+i][1] +'",'+ device +')', false );
 			xmlHttp.send( null );
 			
@@ -613,7 +553,6 @@ var IosPush = (function (api) {
 			html += '<tr><td><select id="method">';
 			html += '<option value=1>Prowl</option>';
 			html += '<option value=2>Push Over</option>';
-			html += '<option value=3>Toasty</option>';
 			html += '<option value=4>XendApp</option>';
 			html += '</select>';
 			html += '</td>';
@@ -869,86 +808,6 @@ var IosPush = (function (api) {
 		}
 	}
 	//*****************************************************************************
-	//  function: toastyedit
-	//*****************************************************************************
-	function toastyedit (device)
-	{
-		try{
-			init();
-			ReadValues( device );
-			var html = '';
-			
-			{
-				// we create a status area
-				html += '<div><p id="status_display" style="width:80%; position:relative; margin-left:auto; margin-right:auto; table-layout:fixed; text-align:center; border-radius: 5px; color:black"></div>';
-				
-				// we create a table which will contain all variables
-				html += '<table style="width:80%; position:relative; margin-left:auto; margin-right:auto; border-radius: 5px">';
-				
-				// show titles
-				html += '<tr>';
-				html += '<th style="font-weight:bold; text-align:left; width:30%">Toasty Parameters :</td>';
-				html += '<th style="font-weight:bold; text-align:left; width:70%"></td>';
-				html += '</tr>';
-				
-				html += '<tr>';
-				html += '<td>' + aInfos[ToastyStartPos][0] + '</td>';
-				html += '<td><input type="text" id="v' + i + '" value="' + aInfos[ToastyStartPos][1] + '" style="width:95%; text-align:left" onkeyup="IosPush.save_var(' + device + ', ' +  ToastyStartPos  + ', this.value)" /></td>';
-				html += '</tr>';
-				
-				html += '<tr>';
-				html += '<td>' + aInfos[ToastyStartPos+1][0] + '</td>';
-				html += '<td><input type="text" id="v' + i + '" value="' + aInfos[ToastyStartPos+1][1] + '" style="width:95%; text-align:left" onkeyup="IosPush.save_var(' + device + ',  ' +  (ToastyStartPos+1)  + ', this.value)" /></td>';
-				html += '</tr>';        
-						
-				html += '<tr>';
-				html += '<td>' + aInfos[ToastyStartPos+2][0] + '</td>';
-				html += '<td>';
-				html += '<select name="select_serial" onChange="IosPush.save_var(' + device + ', ' +  (ToastyStartPos+2)  + ', this.options[this.selectedIndex].value );">';
-				html += '<option ';
-				if ( Number(aInfos[ToastyStartPos+2][1]) == 0 ) { html += 'selected="selected"'; }           
-				html += ' value="0">No</option>';
-				html += '<option ';
-				if ( Number(aInfos[ToastyStartPos+2][1]) == 1 ) { html += 'selected="selected"'; }                        
-				html += 'value="1">Yes</option>';
-				html += '</select>';
-				html += '</td>';
-				html += '</tr>';
-					 
-				// show buttons
-				html += '<tr>';
-				
-				html += '<td colspan="2"><input type="button" value="SAVE" onClick="IosPush.saveall_to(1,' + device + ')" style="margin-left:87%; background:#3295F8; color:white; text-align:center; border-radius:5px; padding-top:4px; text-transform:capitalize; font-family:Arial; font-size:14px; cursor:pointer; -khtml-border-radius: 5px; -webkit-border-radius:5px"/></td>';
-				html += '</tr>';
-				
-				html += '</table>';
-			}
-			
-			html += '<BR><P><BR>';
-			
-			html += '<table id="count" border=0 position:relative; margin-left:auto; margin-right:auto; border-radius: 5px>';
-			html += '<tr>';
-			html += "<td>Number of message(s) sent : </td>";
-			html += "<td>";
-			html += parseInt(api.getDeviceState(device, IOS_UPnP_S, "ToastyCount") ,10);
-			html += "</td>";
-			html += "<td>" ;  
-			html += '&nbsp;&nbsp;(<A href="#" onclick="IosPush.resetcount_toasty(' + device + ');">Reset</A>)';
-			html += "</td>";
-			html += "</tr>";
-			html += '</table>';
-			html += '<table>';
-			html += '<tr><td>';
-			html += 'More informations on service : <A HREF="http://www.supertoasty.com" target="_blank">SuperToasty web site.'
-			html += '</td></tr>'
-			html += '</table>';
-			
-			api.setCpanelContent(html);
-		} catch (e) {
-			Utils.logError('Error in IosPush.toastyedit(): ' + e);
-		}
-	}
-	//*****************************************************************************
 	//  function: prowledit
 	//*****************************************************************************
 	function prowledit (device)
@@ -1073,7 +932,6 @@ myModule = {
         onBeforeCpanelClose: onBeforeCpanelClose,
 		save_var: save_var,
 		saveall_po: saveall_po,
-		saveall_to: saveall_to,
 		saveall_xend: saveall_xend,
 		saveall_var: saveall_var,
 		save: save,
@@ -1084,15 +942,12 @@ myModule = {
 		save_po_select: save_po_select,
 		save_po_sound: save_po_sound,
 		resetcount_pushover: resetcount_pushover,
-		resetcount_toasty: resetcount_toasty,
 		save_select: save_select,
 		resetcount_prowl: resetcount_prowl,
-		
 		
 		testmessageedit: testmessageedit,
 		xendedit: xendedit,
 		pushoveredit: pushoveredit,
-		toastyedit: toastyedit,
 		prowledit: prowledit
 	};
     return myModule;

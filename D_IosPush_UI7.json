@@ -179,14 +179,6 @@
 			"TabType" : "javascript",
 			"ScriptName" : "J_IosPush_UI7.js",
 			"Function" : "IosPush.pushoveredit"
-		}, {
-			"Label" : {
-				"lang_tag" : "edit_toasty",
-				"text" : "Toasty"
-			},
-			"TabType" : "javascript",
-			"ScriptName" : "J_IosPush_UI7.js",
-			"Function" : "IosPush.toastyedit"
 		},
 		{
 			"Label" : {

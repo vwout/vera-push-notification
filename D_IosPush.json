@@ -1,6 +1,6 @@
 {
   "flashicon": "https://cdn.jsdelivr.net/gh/vwout/vera-push-notification/icons/push.png",
-  "halloIconsDir",: "pics/hallo",
+  "halloIconsDir": "pics/hallo",
 
   "x":"2",
   "y":"4",
@@ -213,16 +213,6 @@
            },
            {
            "Label": {
-           "lang_tag": "edit_toasty",
-           "text": "Toasty"
-           },
-           "TabType": "javascript",
-           "ScriptName": "J_IosPush.js",
-           "Function": "toastyedit"
-           },
-           
-           {
-           "Label": {
            "lang_tag": "edit_xend",
            "text": "XendApp"
            },
@@ -230,7 +220,6 @@
            "ScriptName": "J_IosPush.js",
            "Function": "xendedit"
            },
-
            {
            "Label": {
            "lang_tag": "edit_message",

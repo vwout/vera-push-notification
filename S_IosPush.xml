@@ -126,27 +126,6 @@
           </action>
 
           <action>
-              <name>SendToastyNotification</name>
-              <argumentList>
-                  <argument>
-                      <name>Title</name>
-                      <direction>in</direction>
-                      <relatedStateVariable>string</relatedStateVariable>
-                  </argument>
-                  <argument>
-                      <name>Message</name>
-                      <direction>in</direction>
-                      <relatedStateVariable>string</relatedStateVariable>
-                  </argument>
-                   <argument>
-                      <name>ImageURL</name>
-                      <direction>in</direction>
-                      <relatedStateVariable>string</relatedStateVariable>
-                  </argument>                  
-               </argumentList>
-          </action>
-
-          <action>
               <name>SendXendAppNotification</name>
               <argumentList>
                   <argument>
@@ -166,7 +145,6 @@
                   </argument>                  
               </argumentList>
           </action>
-
           
           <action>
               <name>ResetProwlCount</name>
@@ -181,25 +159,16 @@
           </action>
 
           <action>
-              <name>ResetToastyCount</name>
-              <argumentList>
-              </argumentList>
-          </action>
-
-          <action>
               <name>ResetXendAppCount</name>
               <argumentList>
               </argumentList>
           </action>
-          
           
           <action>
               <name>GetPushOverSounds</name>
               <argumentList>
               </argumentList>
           </action>
-          
-          
           
      </actionList>
 </scpd>

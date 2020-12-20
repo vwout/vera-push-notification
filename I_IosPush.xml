@@ -16,73 +16,52 @@ local ltn12 = require("ltn12")
 -- Template Inclusion
 --local Vt = require("veraTemplate")
 --local Vtd = require("veraTemplateDefinitions")
---local Vd = require("veraTemplateDevice")   
+--local Vd = require("veraTemplateDevice")
 
 local UI_VERSION_FILE = "/etc/cmh/ui"
-    
+
 -- Constant definitions
 --
 local ITEM_SID = "urn:upnp-org:serviceId:IOSPush1"
-local PLUGIN_VERSION  = "1.02"
-local PROWL_ERR = " - (Prowl)" 
-local BOXCAR_ERR = " - (Boxcar)" 
+local ALTUI_SID = "urn:upnp-org:serviceId:altui1"
+
+local PLUGIN_VERSION  = "1.03"
+local PROWL_ERR = " - (Prowl)"
+local BOXCAR_ERR = " - (Boxcar)"
 local PUSHOVER_ERR = " - (PushOver)"
-local TOASTY_ERR = " - (Toasty)" 
-local XENDAPP_ERR = " - (XendApp)"    
+local XENDAPP_ERR = " - (XendApp)"
 
 local PROWL_TYPE    = 1
-local PUSHOVER_TYPE = 2 
-local TOASTY_TYPE   = 3
+local PUSHOVER_TYPE = 2
+-- Toasty is deprecated = 3
 local XENDAPP_TYPE  = 4
 local BOXCAR_TYPE  = 5
 
 
 -- PushOver Application Keys
--- PLEASE : Rempace with your Own if you use this code directly.    
---    
+-- PLEASE : Rempace with your Own if you use this code directly.
 local aPushOverToken = { "DhLdLtrcLtDIyZadARfhyMiUcHZPxy", "GKWSuWEYZLAPaytYjQc74RECx3dNsz", "NkhwJRzQCQuk6zuVhyJKtXuUsRGdCr","CUfrHskau7JJgVEgw42FvuBpBkCGhv", "KtKcBjtBQqPStCmrdFPbwbZQQz87Mt" }
 
--- 
--- FUNCTION
 -- Stats Functions
---    
-
 local function checkVersion()
 	local ui7Check = luup.variable_get(ITEM_SID, "UI7Check", lul_device) or ""
 	if ui7Check == "" then
 		luup.variable_set(ITEM_SID, "UI7Check", "false", lul_device)
 		ui7Check = "false"
 	end
-	if( luup.version_branch == 1 and luup.version_major == 7 and ui7Check == "false") then
+	if (luup.version_branch == 1 and luup.version_major == 7 and ui7Check == "false") then
 		luup.variable_set(ITEM_SID, "UI7Check", "true", lul_device)
 		luup.attr_set("device_json", "D_IosPush_UI7.json", lul_device)
 		luup.reload()
 	end
 end
 
-
---
--- FUNCTION
 -- Trim Functions
---
 function trim(s)
 return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
- 
--- trim whitespace from left end of string
-function triml(s)
-return s:match'^%s*(.*)'
-end
- 
--- trim whitespace from right end of string
-function trimr(s)
-return s:find'^%s*$' and '' or s:match'^(.*%S)'
-end
-    
--- 
--- FUNCTION
+
 -- Trace Function, dump Table as String
---
 function dump(o)
  if type(o) == 'table' then
     local s = '{ '
@@ -99,22 +78,17 @@ end
 function dumpc(o)
     if type(o) == 'table' then
         local s = ""
-        for k,v in pairs(o) do        
+        for k,v in pairs(o) do
             s = s .. v .. ','
         end
-        return string.sub(s, 0 , string.len(s) -1 )
+        return string.sub(s, 0 , string.len(s) -1)
     else
         return tostring(o)
     end
-end    
+end
 
-    
--- 
--- FUNCTION
--- Read and Init Xend Providers and Channels    
---     
-
-function ReadXendAppChannels( lul_device )
+-- Read and Init Xend Providers and Channels
+function ReadXendAppChannels(lul_device)
     local data = {}
     local n = {}
     local i = {}
@@ -123,10 +97,10 @@ function ReadXendAppChannels( lul_device )
 
     data = readSettings(lul_device)
     local url_channels=""
-        
+
     url_channels = "http:" .. "\047" .. "\047" .. "xendapp.com" .. "\047" .. "ProviderService" .. "\047" .. "GetUserProvidersWithChannelsjson" .. "\063" .. "username=" .. data.xendusername .. "\038" .. "password=" .. data.xendpassword
-    
-    log ( lul_device, "Xend Url=" .. url_channels, 5 ) 
+
+    log(lul_device, "Xend Url=" .. url_channels, 5)
     local r, c, h, s = https.request
     {
     url = url_channels,
@@ -134,232 +108,203 @@ function ReadXendAppChannels( lul_device )
     protocol = "tlsv1",
     verify = "none",
     }
-    
-    if ( (tonumber(c) == 200) and ( tonumber(string.len(resp[1])) > 2  ) ) then
-    local o = json.decode( resp[1])       
-        if ( (o  ~= nil) and (#o > 0)  ) then    
+
+    if ((tonumber(c) == 200) and (tonumber(string.len(resp[1])) > 2)) then
+    local o = json.decode(resp[1])
+        if ((o  ~= nil) and (#o > 0)) then
             local index = 1
-            
-            for k,v in pairs( o ) do     
-                if ( v["CS"]  ~= nil) then
-                    for x,y in pairs( v["CS"] ) do
+
+            for k,v in pairs(o) do
+                if (v["CS"]  ~= nil) then
+                    for x,y in pairs(v["CS"]) do
                         n[index]= string.gsub(v["N"],",","") .. ":" .. string.gsub(y["N"],",","")
                         i[index]= y["I"]
                         p[index]= y["CPW"]
-                        index=index+1 
+                        index=index+1
                     end
                 end
             end
         end
-        writeVariable ( lul_device, ITEM_SID, "XendAppChannelName", dumpc(n) )
-        writeVariable ( lul_device, ITEM_SID, "XendAppChannelID", dumpc(i) )
+        writeVariable(lul_device, ITEM_SID, "XendAppChannelName", dumpc(n))
+        writeVariable(lul_device, ITEM_SID, "XendAppChannelID", dumpc(i))
 
     else
-    log ( lul_device, "Xend : Failed to retrieve channels data.", 5 )
-    writeVariable ( lul_device, ITEM_SID, "XendAppChannelName", "" )
-    writeVariable ( lul_device, ITEM_SID, "XendAppChannelID", "" )
+    log(lul_device, "Xend : Failed to retrieve channels data.", 5)
+    writeVariable(lul_device, ITEM_SID, "XendAppChannelName", "")
+    writeVariable(lul_device, ITEM_SID, "XendAppChannelID", "")
 
-    end    
-        
+    end
+
 end
-    
-    
-    
--- 
--- FUNCTION
+
+
+
 -- Trace Function, with debug level
---
-function log( lul_device, msg, loglevel)
-  
-      local dbg = 0 
-      dbg = luup.variable_get( ITEM_SID, "Debug", lul_device) or 0
+function log(lul_device, msg, loglevel)
 
-    if ( tonumber(dbg) >=  tonumber(loglevel) ) then
-     luup.log( "Push(" .. tostring(loglevel) .. "-" .. tostring(dbg) .. ")" .. "::" .. (msg or "nil"))
-    end 
+      local dbg = 0
+      dbg = luup.variable_get(ITEM_SID, "Debug", lul_device) or 0
+
+    if (tonumber(dbg) >=  tonumber(loglevel)) then
+     luup.log("Push(" .. tostring(loglevel) .. "-" .. tostring(dbg) .. ")" .. "::" .. (msg or "nil"))
+    end
 
 end
 
--- 
--- FUNCTION
 -- Update Status and TimeStamp
 -- Service
 -- 1 : Prowl
 -- 2 : PushOver
--- 3 : Toasty
--- 4 : XendApp    
--- 5 : Boxcar    
---    
-function update_infos ( lul_device, e, iserror, service )
+-- 3 : Toasty (deprecated)
+-- 4 : XendApp
+-- 5 : Boxcar
+--
+function update_infos (lul_device, e, iserror, service)
 
-local p_count = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0 )
-local b_count = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0 )
-local po_count = readVariableOrInit(lul_device,ITEM_SID,"PushOverCount", 0 )
-local to_count = readVariableOrInit(lul_device,ITEM_SID,"ToastyCount", 0 )
-local x_count = readVariableOrInit(lul_device,ITEM_SID,"XendAppCount", 0 )
-    
+local p_count = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0)
+local b_count = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0)
+local po_count = readVariableOrInit(lul_device,ITEM_SID,"PushOverCount", 0)
+local x_count = readVariableOrInit(lul_device,ITEM_SID,"XendAppCount", 0)
+
 local l = "";
-    
-    
+
+
 -- Error
-if ( iserror == 1) then
-  writeVariable ( lul_device, ITEM_SID, "TimeError", os.time() )
+if (iserror == 1) then
+  writeVariable(lul_device, ITEM_SID, "TimeError", os.time())
 end
 
--- Ok    
-if ( iserror == 0) then
-        
-    writeVariable ( lul_device, ITEM_SID, "TimeSend", os.time() )
-    if ( service == 1 ) then
+-- Ok
+if (iserror == 0) then
+
+    writeVariable(lul_device, ITEM_SID, "TimeSend", os.time())
+    if (service == 1) then
         p_count = p_count + 1
-        writeVariable ( lul_device, ITEM_SID, "ProwlCount", p_count )
+        writeVariable(lul_device, ITEM_SID, "ProwlCount", p_count)
     end
-    
-    if ( service == 2 ) then
+
+    if (service == 2) then
         po_count = po_count + 1
-        writeVariable ( lul_device, ITEM_SID, "PushOverCount", po_count )
-    end   
-    
-    if ( service == 3 ) then
-        to_count = to_count + 1
-        writeVariable ( lul_device, ITEM_SID, "ToastyCount", to_count )
-    end   
-    
-    if ( service == 4 ) then
+        writeVariable(lul_device, ITEM_SID, "PushOverCount", po_count)
+    end
+
+    if (service == 4) then
         x_count = x_count + 1
-        writeVariable ( lul_device, ITEM_SID, "XendAppCount", x_count )
-    end       
+        writeVariable(lul_device, ITEM_SID, "XendAppCount", x_count)
+    end
 
-    if ( service == 5 ) then
+    if (service == 5) then
         b_count = b_count + 1
-        writeVariable ( lul_device, ITEM_SID, "BoxcarCount", b_count )
-    end       
+        writeVariable(lul_device, ITEM_SID, "BoxcarCount", b_count)
+    end
 end
 
-if ( iserror == 2) then
-    writeVariable ( lul_device, ITEM_SID, "LastUpdate", os.time() )
+if (iserror == 2) then
+    writeVariable(lul_device, ITEM_SID, "LastUpdate", os.time())
 end
 
-l = e .. " - " .. string.format("%02d",os.date('*t').hour ) .. ":" .. string.format("%02d",os.date('*t').min )
+l = e .. " - " .. string.format("%02d",os.date('*t').hour) .. ":" .. string.format("%02d",os.date('*t').min)
 
-if ( service == 1 ) then
+if (service == 1) then
     l = l .. PROWL_ERR
 end
 
-if ( service == 2 ) then
+if (service == 2) then
     l = l .. PUSHOVER_ERR
 end
-    
-if ( service == 3 ) then
-    l = l .. TOASTY_ERR
-end
-    
-if ( service == 4 ) then
+
+if (service == 4) then
     l = l .. XENDAPP_ERR
-end 
-if ( service == 5 ) then
+end
+if (service == 5) then
     l = l .. BOXCAR_ERR
-end 
-    
-    
-writeVariable ( lul_device, ITEM_SID, "LastError", l )
-
-
 end
 
--- 
--- FUNCTION
--- Read Module variables
---
-function readSettings(lul_device)
 
+writeVariable(lul_device, ITEM_SID, "LastError", l)
+writeVariable(lul_device, ALTUI_SID, "DisplayLine1", l)
+end
+
+-- Read Module variables
+function readSettings(lul_device)
   local data = {}
 
   data.status                       = readVariableOrInit(lul_device,ITEM_SID,"Status",0)
   data.lasterror                    = readVariableOrInit(lul_device,ITEM_SID,"LastError", "Ok")
-  data.pluginversion                = readVariableOrInit(lul_device,ITEM_SID,"PluginVersion", PLUGIN_VERSION )  
-  data.plugind                      = readVariableOrInit(lul_device,ITEM_SID,"PluginID", "Unknown" )
-  data.pluginmessage                = readVariableOrInit(lul_device,ITEM_SID,"PluginMessage", "" )  
-    
+  readVariableOrInit(lul_device, ALTUI_SID, "DisplayLine1", "Ok")
+  data.pluginversion                = readVariableOrInit(lul_device,ITEM_SID,"PluginVersion", PLUGIN_VERSION)
+  data.plugind                      = readVariableOrInit(lul_device,ITEM_SID,"PluginID", "Unknown")
+  data.pluginmessage                = readVariableOrInit(lul_device,ITEM_SID,"PluginMessage", "")
+
   data.prowlapikey                  = readVariableOrInit(lul_device,ITEM_SID,"ProwlAPIKey", "xxxxxxxxxxxxxx")
   data.prowlapplication             = readVariableOrInit(lul_device,ITEM_SID,"ProwlApplication", "Vera (Prowl)")
-  data.prowladdserialtosubject      = readVariableOrInit(lul_device,ITEM_SID,"ProwlAddSerialToSubject", 0 )
-  data.prowldefaultpriority         = readVariableOrInit(lul_device,ITEM_SID,"ProwlDefaultPriority", 0 )
-  data.prowlcount                   = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0 )
-  data.prowlremaining               = readVariableOrInit(lul_device,ITEM_SID,"ProwlRemaining", 0 )
-  data.prowlresetdate               = readVariableOrInit(lul_device,ITEM_SID,"ProwlResetDate", "2678400" )
+  data.prowladdserialtosubject      = readVariableOrInit(lul_device,ITEM_SID,"ProwlAddSerialToSubject", 0)
+  data.prowldefaultpriority         = readVariableOrInit(lul_device,ITEM_SID,"ProwlDefaultPriority", 0)
+  data.prowlcount                   = readVariableOrInit(lul_device,ITEM_SID,"ProwlCount", 0)
+  data.prowlremaining               = readVariableOrInit(lul_device,ITEM_SID,"ProwlRemaining", 0)
+  data.prowlresetdate               = readVariableOrInit(lul_device,ITEM_SID,"ProwlResetDate", "2678400")
 
-  data.boxcartoken         			= readVariableOrInit(lul_device,ITEM_SID,"BoxcarToken", "xxxxxxxxxxxxxx" )
+  data.boxcartoken         			= readVariableOrInit(lul_device,ITEM_SID,"BoxcarToken", "xxxxxxxxxxxxxx")
   data.boxcarapplication            = readVariableOrInit(lul_device,ITEM_SID,"BoxcarApplication", "Vera (Boxcar)")
-  data.boxcarcount                  = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0 )
-  data.boxcarremaining              = readVariableOrInit(lul_device,ITEM_SID,"BoxcarRemaining", 0 )
-  data.boxcarsourcename             = readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName", "" )
-  data.boxcardefaultsound           = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound", "" )
-  data.boxcardefaulticon            = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon", "" )
-  data.boxcaraddserialtosubject     = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAddSerialToSubject", 0 )
+  data.boxcarcount                  = readVariableOrInit(lul_device,ITEM_SID,"BoxcarCount", 0)
+  data.boxcarremaining              = readVariableOrInit(lul_device,ITEM_SID,"BoxcarRemaining", 0)
+  data.boxcarsourcename             = readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName", "")
+  data.boxcardefaultsound           = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound", "")
+  data.boxcardefaulticon            = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon", "")
+  data.boxcaraddserialtosubject     = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAddSerialToSubject", 0)
 
-  data.pushoveruserkey              = readVariableOrInit(lul_device,ITEM_SID,"PushOverUserKey", "xxxxxxxxxxxxxx" )
-  data.pushovercustomappkey         = readVariableOrInit(lul_device,ITEM_SID,"PushOverCustomAppKey", "xxxxxxxxxxxxxx" )
-  data.pushoverusecustomappkey      = readVariableOrInit(lul_device,ITEM_SID,"PushOverUseCustomAppKey", 0 )
+  data.pushoveruserkey              = readVariableOrInit(lul_device,ITEM_SID,"PushOverUserKey", "xxxxxxxxxxxxxx")
+  data.pushovercustomappkey         = readVariableOrInit(lul_device,ITEM_SID,"PushOverCustomAppKey", "xxxxxxxxxxxxxx")
+  data.pushoverusecustomappkey      = readVariableOrInit(lul_device,ITEM_SID,"PushOverUseCustomAppKey", 0)
   data.pushoverapplication          = readVariableOrInit(lul_device,ITEM_SID,"PushOverApplication", "Vera (PushOver)")
-  data.pushoversound                = readVariableOrInit(lul_device,ITEM_SID,"PushOverSound", "")  
-  data.pushoversoundlist            = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundList", "")  
-  data.pushoveraddserialtosubject	= readVariableOrInit(lul_device,ITEM_SID,"PushOverAddSerialToSubject", 0 )
+  data.pushoversound                = readVariableOrInit(lul_device,ITEM_SID,"PushOverSound", "")
+  data.pushoversoundlist            = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundList", "")
+  data.pushoveraddserialtosubject	= readVariableOrInit(lul_device,ITEM_SID,"PushOverAddSerialToSubject", 0)
   data.pushoverdefaultpriority      = readVariableOrInit(lul_device,ITEM_SID,"PushOverDefaultPriority", 0)
-  data.pushovercount                = readVariableOrInit(lul_device,ITEM_SID,"PushOverCount", 0 )
- 
-  data.toastydeviceid               = readVariableOrInit(lul_device,ITEM_SID,"ToastyDeviceID", "xxxxxxxxxxxxxx" )
-  data.toastyaddserialtosubject     = readVariableOrInit(lul_device,ITEM_SID,"ToastyAddSerialToSubject", 0 )    
-  data.toastyapplication            = readVariableOrInit(lul_device,ITEM_SID,"ToastyApplication", "Vera (Toasty)")
-  data.toastycount                  = readVariableOrInit(lul_device,ITEM_SID,"ToastyCount", 0 )
+  data.pushovercount                = readVariableOrInit(lul_device,ITEM_SID,"PushOverCount", 0)
 
-  data.xendusername                 = readVariableOrInit(lul_device,ITEM_SID,"XendAppUserName", "xxxxxxxxxxxxxx" )
-  data.xendpassword                 = readVariableOrInit(lul_device,ITEM_SID,"XendAppPassword", "xxxxxxxxxxxxxx" )    
+  data.xendusername                 = readVariableOrInit(lul_device,ITEM_SID,"XendAppUserName", "xxxxxxxxxxxxxx")
+  data.xendpassword                 = readVariableOrInit(lul_device,ITEM_SID,"XendAppPassword", "xxxxxxxxxxxxxx")
   data.xendapplication              = readVariableOrInit(lul_device,ITEM_SID,"XendAppApplication", "Vera (XendApp)")
-  data.xendchannelname              = readVariableOrInit(lul_device,ITEM_SID,"XendAppChannelName", "" )
-  data.xendchannelid                = readVariableOrInit(lul_device,ITEM_SID,"XendAppChannelID", "" )
-  data.xenddefaultchannel           = readVariableOrInit(lul_device,ITEM_SID,"XendAppDefaultChannel", "" )
-  data.xendencryption               = readVariableOrInit(lul_device,ITEM_SID,"XendAppEncryption", "1" )
-  data.xendcontenttype              = readVariableOrInit(lul_device,ITEM_SID,"XendAppContentType", "1" )
-  data.xendaddserialtosubject       = readVariableOrInit(lul_device,ITEM_SID,"XendAddSerialToSubject", "0" )      
+  data.xendchannelname              = readVariableOrInit(lul_device,ITEM_SID,"XendAppChannelName", "")
+  data.xendchannelid                = readVariableOrInit(lul_device,ITEM_SID,"XendAppChannelID", "")
+  data.xenddefaultchannel           = readVariableOrInit(lul_device,ITEM_SID,"XendAppDefaultChannel", "")
+  data.xendencryption               = readVariableOrInit(lul_device,ITEM_SID,"XendAppEncryption", "1")
+  data.xendcontenttype              = readVariableOrInit(lul_device,ITEM_SID,"XendAppContentType", "1")
+  data.xendaddserialtosubject       = readVariableOrInit(lul_device,ITEM_SID,"XendAddSerialToSubject", "0")
 
-  data.xendcount                    = readVariableOrInit(lul_device,ITEM_SID,"XendAppCount", 0 )
-  
-    
-    
+  data.xendcount                    = readVariableOrInit(lul_device,ITEM_SID,"XendAppCount", 0)
+
+
+
   data.timeerror                    = readVariableOrInit(lul_device,ITEM_SID,"TimeError", 0)
   data.timesend                     = readVariableOrInit(lul_device,ITEM_SID,"TimeSend", 0)
-  data.prowlapiurl                  = readVariableOrInit(lul_device,ITEM_SID,"ProwlAPIUrl", "https:" .. "\047" .. "\047"  ..  "api.prowlapp.com" .. "\047"  .. "publicapi" .. "\047"  .. "add" )  
-  data.boxcarapiurl                  = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAPIUrl", "https:" .. "\047" .. "\047"  ..  "new.boxcar.io" .. "\047"  .. "api" .. "\047"  .. "notifications" )  
-  data.pushoverapiurl               = readVariableOrInit(lul_device,ITEM_SID,"PushOverAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "messages.xml") 
-  data.pushoversoundapiurl          = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "sounds.xml") 
-  data.toastyapiurl                 = readVariableOrInit(lul_device,ITEM_SID,"ToastyAPIUrl", "http:" .. "\047" .. "\047" ..  "api.supertoasty.com" .. "\047" .. "notify" .. "\047" ) 
-  data.toastyimageurl               = readVariableOrInit(lul_device,ITEM_SID,"ToastyImageUrl", "https:" .. "\047" .. "\047" .. "cdn.jsdelivr.net" .. "\047" .. "gh" .. "\047" .. "vwout" .. "\047" .. "vera-push-notification" .. "\047" .. "icons" .. "\047" .. "toasty.png" )
-  data.xendapiurl                   = readVariableOrInit(lul_device,ITEM_SID,"XendAPAPIPUrl", "http:" .. "\047" .. "\047" ..  "xendapp.com" .. "\047" ) 
+  data.prowlapiurl                  = readVariableOrInit(lul_device,ITEM_SID,"ProwlAPIUrl", "https:" .. "\047" .. "\047"  ..  "api.prowlapp.com" .. "\047"  .. "publicapi" .. "\047"  .. "add")
+  data.boxcarapiurl                 = readVariableOrInit(lul_device,ITEM_SID,"BoxcarAPIUrl", "https:" .. "\047" .. "\047"  ..  "new.boxcar.io" .. "\047"  .. "api" .. "\047"  .. "notifications")
+  data.pushoverapiurl               = readVariableOrInit(lul_device,ITEM_SID,"PushOverAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "messages.xml")
+  data.pushoversoundapiurl          = readVariableOrInit(lul_device,ITEM_SID,"PushOverSoundAPIUrl", "https:" .. "\047" .. "\047" ..  "api.pushover.net" .. "\047" .. "1" .. "\047" .. "sounds.xml")
 
-  data.stats                        = readVariableOrInit(lul_device,ITEM_SID,"Stats", 1 )
+  data.xendapiurl                   = readVariableOrInit(lul_device,ITEM_SID,"XendAPAPIPUrl", "http:" .. "\047" .. "\047" ..  "xendapp.com" .. "\047")
+
+  data.stats                        = readVariableOrInit(lul_device,ITEM_SID,"Stats", 1)
 
   data.debug                        = readVariableOrInit(lul_device,ITEM_SID,"Debug", 0)
   data.debugdata                    = readVariableOrInit(lul_device,ITEM_SID,"DebugData", "")
   data.usetemplate                  = readVariableOrInit(lul_device,ITEM_SID,"UseTemplate", 0)
   -- data.bypasstemplateversionscheck  = readVariableOrInit(lul_device,ITEM_SID,"BypassTemplateVersionsCheck", 0)
   return data
-
 end
 
 
--- 
--- FUNCTION
 -- Avoid Empty String for trace
---
-function checkstring ( s )    
-    if (  string.len(s) == 0 ) then
+function checkstring (s)
+    if (string.len(s) == 0) then
         s = " "
     end
     return s
-end    
-    
--- 
+end
+
+--
 -- FUNCTION
 -- Write variables
 --
@@ -368,37 +313,29 @@ function writeVariable(lul_device,devicetype, name, value)
 end
 
 
--- 
--- FUNCTION
 -- Write variables
---
 function ExpandTemplate(lul_device, msg)
     local msgx = msg
     local Vt = require("veraTemplate")
-    
-    log( lul_device, "Template Translating: " .. msgx, 1 )
-    
-    r,msg = pcall ( Vt.expand, msgx )
-        if ( r ~= true ) then
+
+    log(lul_device, "Template Translating: " .. msgx, 1)
+
+    r,msg = pcall (Vt.expand, msgx)
+        if (r ~= true) then
         msg = "TEMPLATE EXPANDING ERROR\nDISABLE TEMPLATE USAGE IN PLUGIN\n" .. msgx
     end
-    
-    return msg
-end    
-    
-    
--- 
--- FUNCTION
--- Read and/or Init variables
---
-function readVariableOrInit(lul_device, devicetype, name, defaultValue)
 
+    return msg
+end
+
+-- Read and/or Init variables
+function readVariableOrInit(lul_device, devicetype, name, defaultValue)
  local var = luup.variable_get(devicetype,name, lul_device)
  if (var == nil) then
    var = defaultValue
    luup.variable_set(devicetype,name,var,lul_device)
  end
- log ( lul_device, "Read Var : " .. tostring(name) .. "=>" .. tostring(var), 5 )
+ log(lul_device, "Read Var : " .. tostring(name) .. "=>" .. tostring(var), 5)
  return var
 end
 
@@ -410,150 +347,139 @@ function url_encode(str)
 		function (c) return string.format ("%%%02X", string.byte(c)) end)
 	str = string.gsub (str, " ", "+")
   end
-  return str   
+  return str
 end
-    
--- 
--- FUNCTION
+
 -- Send notification using PushOver service
---    
-function sendPushOver ( lul_device, title, msg, p, u, ut, sound, d )  
+function sendPushOver(lul_device, title, msg, p, u, ut, sound, d)
     local data = {}
     local s = ""
     local PoToken = ""
     -- local iaTokenSize = #aPushOverToken
-    
-    
+
+
     data = readSettings(lul_device)
-    if ( tonumber(data.pushoverusecustomappkey) == 1 ) then
-        log( lul_device, "Custom Application Key Used.", 1 )
+    if (tonumber(data.pushoverusecustomappkey) == 1) then
+        log(lul_device, "Custom Application Key Used.", 1)
         PoToken = data.pushovercustomappkey
-    else    
+    else
         math.randomseed(os.time())
-        math.random( 1, 5 )
-        math.random( 1, 5 )
-        local iToken = math.random( 1, 5 )
+        math.random(1, 5)
+        math.random(1, 5)
+        local iToken = math.random(1, 5)
         PoToken = aPushOverToken [ iToken ]
     end
-    
-    if (  string.len(title) == 0 ) then
+
+    if (string.len(title) == 0) then
         title = data.pushoverapplication
-    end    
+    end
 
-    if ( tonumber(data.pushoveraddserialtosubject)  ~= 0) then
-        title = "\091" .. luup.pk_accesspoint .. "\093 " .. title 
+    if (tonumber(data.pushoveraddserialtosubject)  ~= 0) then
+        title = "[" .. luup.pk_accesspoint .. "] " .. title
     end
-    
-    if (  string.len( tostring(p) ) == 0 ) then
-        p = tostring( data.pushoverdefaultpriority )
-    end    
-        
-    if (  tonumber(data.usetemplate) == 1 ) then
-        msg = ExpandTemplate( lul_device, msg )    
+
+    if (string.len(tostring(p)) == 0) then
+        p = tostring(data.pushoverdefaultpriority)
     end
-    
-    
-    log( lul_device, "PushOverNotification(" .. p  ..  ")(" .. data.pushoveruserkey ..  ")[" .. checkstring(u) ..  "] Title(" .. checkstring(title) .. ") Message(" .. checkstring(msg) .. ")", 1 ) 
-    
+
+    if (tonumber(data.usetemplate) == 1) then
+        msg = ExpandTemplate(lul_device, msg)
+    end
+
+
+    log(lul_device, "PushOverNotification(" .. p  ..  ")(" .. data.pushoveruserkey ..  ")[" .. checkstring(u) ..  "] Title(" .. checkstring(title) .. ") Message(" .. checkstring(msg) .. ")", 1)
+
     local resp={}
-    request_body = "token=" .. checkstring(PoToken) .. "\038" .. "user=" .. trim(data.pushoveruserkey) .. "\038"  .. "URL=" .. url.escape(u) .. "\038"  .. "message=" .. url.escape( msg ) .. "\038" .. "title=" .. url.escape( title ) .. "\038" .. "priority=" .. p .. "\038" .. "device=" .. d
-  
-    
-    if (  string.len( u ) > 0 ) then
-        request_body = request_body .. "\038" .. "url=" .. url.escape(u)
-    
-        if (  string.len( ut ) > 0 ) then
-            request_body = request_body .. "\038" .. "url_title=" .. url.escape(ut)
-        end    
-    
-    end    
+    request_body = "token="..checkstring(PoToken).."&amp;user="..trim(data.pushoveruserkey).."&amp;URL="..url.escape(u).."&amp;message="..url.escape(msg).."&amp;title="..url.escape(title).."&amp;priority="..p.."&amp;device=" .. d
 
-    if (  string.len( sound ) > 0 ) then
-        request_body = request_body .. "\038" .. "sound=" .. url.escape(sound)
-    else
-        if (  string.len( data.pushoversound ) > 0 ) then
-            request_body = request_body .. "\038" .. "sound=" .. url.escape(data.pushoversound)
+    if (string.len(u) > 0) then
+        request_body = request_body.."&amp;url="..url.escape(u)
+        if (string.len(ut) > 0) then
+            request_body = request_body.."&amp;url_title="..url.escape(ut)
         end
-    end    
-    
-    
-    
-    log( lul_device, request_body, 2 )
-        
+    end
+
+    if (string.len(sound) > 0) then
+        request_body = request_body.."&amp;sound="..url.escape(sound)
+    else
+        if (string.len(data.pushoversound) > 0) then
+            request_body = request_body.."&amp;sound="..url.escape(data.pushoversound)
+        end
+    end
+
+    log(lul_device, request_body, 2)
+
     local r, c, h, s = https.request
     {
     method = "POST",
     url = data.pushoverapiurl,
     headers = {["Content-Length"] = string.len(request_body)},
     source = ltn12.source.string(request_body),
-    
+
     sink = ltn12.sink.table(resp),
     protocol = "sslv23",
     verify = "none",
     }
 
     tabxml = lom.parse (resp[1])
-    
-    if ( tonumber(c) == 200 ) then
-       update_infos ( lul_device,"Ok", 0, 2 )
-    else
-        update_infos ( lul_device, tabxml[2][1] .. " " .. tabxml[2]["tag"]  , 1, 2 )
-    end
-    
-end    
 
--- 
--- FUNCTION
+    if (tonumber(c) == 200) then
+       update_infos (lul_device,"Ok", 0, 2)
+    else
+        update_infos (lul_device, tabxml[2][1] .. " " .. tabxml[2]["tag"]  , 1, 2)
+    end
+
+end
+
 -- Send notification using Boxcar service
--- 
-function sendBoxcarPush(lul_device, title, long_message, source_name, sound, icon_url, open_url ) 
+function sendBoxcarPush(lul_device, title, long_message, source_name, sound, icon_url, open_url)
 	
    local data = {}
    local resp = {}
    data = readSettings(lul_device)
-   local application = tostring( data.boxcarapplication )
-   
-   if ( title == nil or title == "") then
+   local application = tostring(data.boxcarapplication)
+
+   if (title == nil or title == "") then
         title = ""
    end
-   if ( long_message == nil or long_message == "") then
+   if (long_message == nil or long_message == "") then
         long_message = ""
    end
-   if ( source_name == nil or source_name == "") then
+   if (source_name == nil or source_name == "") then
         source_name = readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName","")
-    end
-   if ( sound == nil or sound == "") then
+   end
+   if (sound == nil or sound == "") then
         sound = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound","")
-    end
-   if ( icon_url == nil or icon_url == "") then
+   end
+   if (icon_url == nil or icon_url == "") then
         icon_url = readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon","")
-    end
-   if ( open_url == nil or open_url == "") then
+   end
+   if (open_url == nil or open_url == "") then
         open_url = ""
-    end
-	
-	if ( tonumber(data.boxcaraddserialtosubject)  ~= 0) then
+   end
+
+   if (tonumber(data.boxcaraddserialtosubject)  ~= 0) then
      source_name = source_name .. " \091" .. luup.pk_accesspoint .. "\093 "
    end
-   
-   log( lul_device, "BoxcarNotification(" .. (source_name) ..")[" .. application .. "] Subject(" .. title .. ") Body(" .. long_message .. ")", 1 )  
-   
+
+   log(lul_device, "BoxcarNotification(" .. (source_name) ..")[" .. application .. "] Subject(" .. title .. ") Body(" .. long_message .. ")", 1)
+
    --	put here your api key
-	local user_credentials = tostring( data.boxcartoken )
+	local user_credentials = tostring(data.boxcartoken)
 
 	local request_body = "user_credentials=" .. url_encode(user_credentials) .. "\038"  .. "notification[title]=" .. title .. "\038" .. "notification[long_message]=" .. long_message
 	
-	if (string.len(sound) > 0) then 
-		request_body = request_body .. "\038" .. "notification[sound]=" .. url_encode(sound) 
+	if (string.len(sound) > 0) then
+		request_body = request_body .. "\038" .. "notification[sound]=" .. url_encode(sound)
 	end
-	if (string.len(source_name) > 0) then 
-		request_body = request_body .. "\038" .. "notification[source_name]=" .. url_encode(source_name) 
+	if (string.len(source_name) > 0) then
+		request_body = request_body .. "\038" .. "notification[source_name]=" .. url_encode(source_name)
 	end
-	if (string.len(icon_url) > 0) then 
-		request_body = request_body .. "\038" .. "notification[icon_url]=" .. url_encode(icon_url) 
+	if (string.len(icon_url) > 0) then
+		request_body = request_body .. "\038" .. "notification[icon_url]=" .. url_encode(icon_url)
 	end
-	if (string.len(open_url) > 0) then 
-		request_body = request_body .. "\038" .. "notification[open_url]=" .. url_encode(open_url) 
+	if (string.len(open_url) > 0) then
+		request_body = request_body .. "\038" .. "notification[open_url]=" .. url_encode(open_url)
 	end
 	
 	local response_body = {}
@@ -568,47 +494,44 @@ function sendBoxcarPush(lul_device, title, long_message, source_name, sound, ico
 	  source = ltn12.source.string(request_body),
 	  sink = ltn12.sink.table(response_body),
 	}
-   
+
 end
-    
--- 
--- FUNCTION
+
 -- Send notification using Prowl service
---
-function sendProwlPush(lul_device, subject, body, priority, u ) 
+function sendProwlPush(lul_device, subject, body, priority, u)
 
    local data = {}
    local resp={}
    data = readSettings(lul_device)
-   local application = tostring( data.prowlapplication )
+   local application = tostring(data.prowlapplication)
 
-    if ( tonumber(priority) == - 99 ) then
-        priority = data.prowldefaultpriority    
+    if (tonumber(priority) == - 99) then
+        priority = data.prowldefaultpriority
     end
 
-    if (  string.len(application) == 0 ) then
+    if (string.len(application) == 0) then
         application = "No name"
-    end    
+    end
 
-    if (  string.len(subject) == 0 ) then
+    if (string.len(subject) == 0) then
         subject = ""
-    end    
-    
-   if ( tonumber(data.prowladdserialtosubject)  ~= 0) then
-     application = "\091" .. luup.pk_accesspoint .. "\093 " .. application 
+    end
+
+   if (tonumber(data.prowladdserialtosubject)  ~= 0) then
+     application = "\091" .. luup.pk_accesspoint .. "\093 " .. application
    end
 
-    if (  tonumber(data.usetemplate) == 1 ) then
-    body = ExpandTemplate( lul_device, body )    
+    if (tonumber(data.usetemplate) == 1) then
+    body = ExpandTemplate(lul_device, body)
     end
- 
-    
-   log( lul_device, "ProwlNotification(" .. priority ..")[" .. data.prowlapplication .. "] Subject(" .. subject .. ") Body(" .. body .. ")", 1 )  
+
+
+    log(lul_device, "ProwlNotification(" .. priority ..")[" .. data.prowlapplication .. "] Subject(" .. subject .. ") Body(" .. body .. ")", 1)
 
     local prowlurl = data.prowlapiurl .. "\063" .."apikey=" .. trim(data.prowlapikey) .. "\038"  .. "application=" .. url.escape(application)  .. "\038"  .. "event=" .. url.escape(subject)  .. "\038"  .. "description=" ..  url.escape(body)   .. "\038"  ..  "priority=" .. priority .. "\038"  .. "url=" .. url.escape(u)
 
-    log( lul_device, "URL =>" .. prowlurl , 1 )  
-    
+    log(lul_device, "URL =>" .. prowlurl , 1)
+
     local r, c, h, s = https.request
     {
         url = prowlurl,
@@ -616,194 +539,132 @@ function sendProwlPush(lul_device, subject, body, priority, u )
         protocol = "tlsv1",
         verify = "none",
     }
-        
+
         tabxml = lom.parse (resp[1])
-    
-    if ( tonumber(c) == 200 ) then
-       update_infos ( lul_device,"Ok", 0, 1 )
-       
-       writeVariable ( lul_device, ITEM_SID, "ProwlRemaining", tabxml[2]["attr"]["remaining"] or "Unknown" )
-       writeVariable ( lul_device, ITEM_SID, "ProwlResetDate", tabxml[2]["attr"]["resetdate"] or "2678400" )
-    
+
+    if (tonumber(c) == 200) then
+       update_infos (lul_device,"Ok", 0, 1)
+
+       writeVariable(lul_device, ITEM_SID, "ProwlRemaining", tabxml[2]["attr"]["remaining"] or "Unknown")
+       writeVariable(lul_device, ITEM_SID, "ProwlResetDate", tabxml[2]["attr"]["resetdate"] or "2678400")
+
     else
-        if ( tonumber(data.debug) == 2 ) then
-		writeVariable ( lul_device, ITEM_SID, "DebugData", tostring ( prowlurl ) )
-	end
-        update_infos ( lul_device, tabxml[2][1] or "ERR" , 1, 1 )
+        if (tonumber(data.debug) == 2) then
+        writeVariable(lul_device, ITEM_SID, "DebugData", tostring (prowlurl))
+    end
+        update_infos (lul_device, tabxml[2][1] or "ERR" , 1, 1)
 
     end
-
-
 end
-    
-    
-    
-function sendPushToasty( lul_device, title, message, i )
-    local data = {}
-    local resp={}
-    data = readSettings(lul_device)
-    
-    local application = checkstring( tostring( data.toastyapplication ) )
-    local t =  checkstring( title )
-    local m =  checkstring( message )
-    
-    local u = ""
-    
-    if ( i ~= nil ) then
-        u = i
-    end
-    
-    if ( tonumber(data.toastyaddserialtosubject)  ~= 0) then
-        application = "\091" .. luup.pk_accesspoint .. "\093 " .. application 
-    end
 
-
-    if (  string.len(i) == 0 )then
-        u = data.toastyimageurl
-    end    
-    
-    if (  tonumber(data.usetemplate) == 1 ) then
-    message = ExpandTemplate( lul_device, message )    
-    end
-    
-    log( lul_device, "ToastyNotification [" .. application .. "] Title(" .. t .. ") Message(" .. m .. ")" .. "URL=" .. url.escape(u), 1 ) 
-    
-    
-    local toastyurl = data.toastyapiurl .. trim(checkstring(data.toastydeviceid)) .. "\063" .. "sender=" .. url.escape(application)  .. "\038"  .. "title=" .. url.escape(t)  .. "\038"  .. "text=" .. url.escape(m) .. "\038"  .. "image=" .. url.escape(u)
-    
-    log( lul_device, "URL =>" .. toastyurl , 1 )  
-
-    local r, c, h, s = http.request
-    {
-        url = toastyurl,
-        sink = ltn12.sink.table(resp),
-    }
-
-    if ( tonumber(c) == 200 ) then
-        update_infos ( lul_device,"Ok", 0, 3 )
-    else
-        update_infos ( lul_device, resp[1] or "ERR" , 1, 3 )    
-    end
-
-end    
-    
-
-function resetProwlCount(lul_device )
-    writeVariable ( lul_device, ITEM_SID, "ProwlCount", 0 )
-end    
-
-function resetBoxcarCount(lul_device )
-    writeVariable ( lul_device, ITEM_SID, "BoxcarCount", 0 )
-end    
-    
-function resetPushOverCount(lul_device )
-    writeVariable ( lul_device, ITEM_SID, "PushOverCount", 0 )
-
-end    
-    
-function resetToastyCount (lul_device )
-    writeVariable ( lul_device, ITEM_SID, "ToastyCount", 0 )
-end    
-   
-function resetXendAppCount (lul_device )
-    writeVariable ( lul_device, ITEM_SID, "XendAppCount", 0 )
+function resetProwlCount(lul_device)
+    writeVariable(lul_device, ITEM_SID, "ProwlCount", 0)
 end
-    
-    
-function getPushOverSounds(lul_device )
+
+function resetBoxcarCount(lul_device)
+    writeVariable(lul_device, ITEM_SID, "BoxcarCount", 0)
+end
+
+function resetPushOverCount(lul_device)
+    writeVariable(lul_device, ITEM_SID, "PushOverCount", 0)
+end
+
+function resetXendAppCount (lul_device)
+    writeVariable(lul_device, ITEM_SID, "XendAppCount", 0)
+end
+
+
+function getPushOverSounds(lul_device)
     data = readSettings(lul_device)
     math.randomseed(os.time())
-    math.random( 1, 3 )
-    math.random( 1, 3 )
-    local iToken = math.random( 1, 3 )
+    math.random(1, 3)
+    math.random(1, 3)
+    local iToken = math.random(1, 3)
     local PoToken = aPushOverToken [ iToken ]
     local s=""
-    
-    log( lul_device, "URL =>" .. data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken), 4 ) 
-    code, sdata = luup.inet.wget( data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken) )
-    if ( code == 0 ) then
+
+    log(lul_device, "URL =>" .. data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken), 4)
+    code, sdata = luup.inet.wget(data.pushoversoundapiurl .. "?token=" .. checkstring(PoToken))
+    if (code == 0) then
         tabxml = lom.parse (sdata)
         sounds=""
         for k,v in pairs(tabxml[2]) do
             if (v["tag"]  ~= nil) then
-                s= checkstring ( v["tag"] )
-                log( lul_device, "Adding Sound =>" .. s  , 4 ) 
+                s= checkstring (v["tag"])
+                log(lul_device, "Adding Sound =>" .. s  , 4)
                 sounds = sounds .. s .. ","
             end
             s=""
         end
-        writeVariable ( lul_device, ITEM_SID, "PushOverSoundList", string.sub( sounds,1, -2 ) ) 
+        writeVariable(lul_device, ITEM_SID, "PushOverSoundList", string.sub(sounds,1, -2))
     end
-    
-end    
 
-    
-function SendXendAppNotification( lul_device, subject, message, channel )
+end
+
+
+function SendXendAppNotification(lul_device, subject, message, channel)
     local data = {}
     data = readSettings(lul_device)
-    
-    if (  string.len(subject) == 0 )then
-        subject = data.xendapplication 
+
+    if (string.len(subject) == 0)then
+        subject = data.xendapplication
     end
-    
-    if (  string.len(message) == 0 )then
+
+    if (string.len(message) == 0)then
         message= "\060" .. "No message" .. "\062"
     end
- 
-    if ( tonumber(data.xendaddserialtosubject)  ~= 0) then
-         subject = "\091" .. luup.pk_accesspoint .. "\093 " .. subject 
+
+    if (tonumber(data.xendaddserialtosubject)  ~= 0) then
+         subject = "\091" .. luup.pk_accesspoint .. "\093 " .. subject
     end
 
-    if (  string.len(channel) == 0 )then
-    log( lul_device, "XendApp channel not specified, using default channel : " .. checkstring ( data.xenddefaultchannel ) , 1 ) 
-        channel = checkstring ( data.xenddefaultchannel )
+    if (string.len(channel) == 0)then
+    log(lul_device, "XendApp channel not specified, using default channel : " .. checkstring (data.xenddefaultchannel) , 1)
+        channel = checkstring (data.xenddefaultchannel)
     end
-    
-    if (  tonumber(data.usetemplate) == 1 ) then
-    message = ExpandTemplate( lul_device, message )    
+
+    if (tonumber(data.usetemplate) == 1) then
+    message = ExpandTemplate(lul_device, message)
     end
-    
-    local url= data.xendapiurl .. "MessageService"  .. "\047" ..  "SendMessageWithGet" .. "\063" .. "username=" .. url.escape(data.xendusername)  .. "\038" .. "password=" .. url.escape(data.xendpassword) .. "\038"  .. "contentTypeId=" .. data.xendcontenttype .. "\038" .. "channelId=" .. channel .. "\038" .. "subject=" .. url.escape(b64.enc(subject)) .. "\038"  .. "body=" .. url.escape(b64.enc(message)) .. "\038" .. "expire=" .. (os.time() + 86400 )
-    
-    log( lul_device, "XendAppNotification Url=" .. url, 1 )
-    log( lul_device, "XendAppNotification Subject(" .. subject .. ") Message(" .. message .. ") Channel=" .. channel, 1 ) 
-    
-    code, sdata = luup.inet.wget( url )
-    if ( code == 0 ) then
-       update_infos ( lul_device,"Ok", 0, 4 )
+
+    local url= data.xendapiurl .. "MessageService"  .. "\047" ..  "SendMessageWithGet" .. "\063" .. "username=" .. url.escape(data.xendusername)  .. "\038" .. "password=" .. url.escape(data.xendpassword) .. "\038"  .. "contentTypeId=" .. data.xendcontenttype .. "\038" .. "channelId=" .. channel .. "\038" .. "subject=" .. url.escape(b64.enc(subject)) .. "\038"  .. "body=" .. url.escape(b64.enc(message)) .. "\038" .. "expire=" .. (os.time() + 86400)
+
+    log(lul_device, "XendAppNotification Url=" .. url, 1)
+    log(lul_device, "XendAppNotification Subject(" .. subject .. ") Message(" .. message .. ") Channel=" .. channel, 1)
+
+    code, sdata = luup.inet.wget(url)
+    if (code == 0) then
+       update_infos (lul_device,"Ok", 0, 4)
     else
-       update_infos ( lul_device, "Error" , 1, 4 )    
+       update_infos (lul_device, "Error" , 1, 4)
     end
 
-end    
+end
 
-    
-function mystartup(lul_device)    
+
+function mystartup(lul_device)
    luup.log("(PushNotificationPLugin)::(mystartup) : starting up...")
-   
+
    --check UI version
 	checkVersion()
-   
+
    local data = {}
-    
+
 -- Update Value
-   writeVariable ( lul_device, ITEM_SID, "PluginVersion", PLUGIN_VERSION )
+   writeVariable(lul_device, ITEM_SID, "PluginVersion", PLUGIN_VERSION)
    data = readSettings(lul_device)
-    
--- Check Template Activation
---- !!!!!!!!!!!    ADD CHECK PLUS LOG    
-    
+
 -- Read Available Sounds
-    getPushOverSounds(lul_device )
+    getPushOverSounds(lul_device)
 
 -- Read Available Channels
-   ReadXendAppChannels( lul_device )
-    
+   ReadXendAppChannels(lul_device)
+
 -- Reset Last Error
-   update_infos( lul_device, "RST", 2)
+   update_infos(lul_device, "RST", 2)
 	luup.log("(PushNotificationPLugin)::(mystartup) : Startup OK!")
 end
-    
+
 
 </functions>
     <startup>mystartup</startup>
@@ -812,7 +673,7 @@ end
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>SendBoxcarNotification</name>
             <run>
-                sendBoxcarPush(lul_device,lul_settings.Title or "", lul_settings.Message or "", lul_settings.SourceName or readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName",""), lul_settings.Sound or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound",""), lul_settings.Icon or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon",""), lul_settings.URL or ""  )
+                sendBoxcarPush(lul_device,lul_settings.Title or "", lul_settings.Message or "", lul_settings.SourceName or readVariableOrInit(lul_device,ITEM_SID,"BoxcarSourceName",""), lul_settings.Sound or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultSound",""), lul_settings.Icon or readVariableOrInit(lul_device,ITEM_SID,"BoxcarDefaultIcon",""), lul_settings.URL or "")
             </run>
         </action>
 
@@ -820,26 +681,18 @@ end
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>SendProwlNotification</name>
             <run>
-                sendProwlPush(lul_device, lul_settings.Event or "", lul_settings.Description or "", lul_settings.Priority or readVariableOrInit(lul_device,ITEM_SID,"ProwlDefaultPriority", 0 ), lul_settings.URL or ""  )
-            </run>
-        </action>
-        
-        <action>
-            <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
-            <name>SendPushOverNotification</name>
-            <run>
-                sendPushOver( lul_device, lul_settings.Title or "", lul_settings.Message or "", lul_settings.Priority or readVariableOrInit(lul_device,ITEM_SID,"PushOverDefaultPriority", 0 ), lul_settings.URL or "" , lul_settings.URLTitle or "", lul_settings.Sound or "", lul_settings.DeviceName or "" )
+                sendProwlPush(lul_device, lul_settings.Event or "", lul_settings.Description or "", lul_settings.Priority or readVariableOrInit(lul_device,ITEM_SID,"ProwlDefaultPriority", 0), lul_settings.URL or "")
             </run>
         </action>
 
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
-            <name>SendToastyNotification</name>
+            <name>SendPushOverNotification</name>
             <run>
-                sendPushToasty( lul_device, lul_settings.Title or "", lul_settings.Message or "", lul_settings.ImageURL or "" )
+                sendPushOver(lul_device, lul_settings.Title or "", lul_settings.Message or "", lul_settings.Priority or readVariableOrInit(lul_device,ITEM_SID,"PushOverDefaultPriority", 0), lul_settings.URL or "" , lul_settings.URLTitle or "", lul_settings.Sound or "", lul_settings.DeviceName or "")
             </run>
-        </action>            
-        
+        </action>
+
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>ResetProwlCount</name>
@@ -858,20 +711,12 @@ end
 
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
-            <name>ResetToastyCount</name>
-            <run>
-                resetToastyCount(lul_device)
-            </run>
-        </action>
-        
-        <action>
-            <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>ResetXendAppCount</name>
             <run>
                 resetXendAppCount(lul_device)
             </run>
         </action>
-                
+
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>GetPushOverSounds</name>
@@ -879,17 +724,14 @@ end
                 getPushOverSounds(lul_device)
             </run>
         </action>
-              
-   
+
         <action>
             <serviceId>urn:upnp-org:serviceId:IOSPush1</serviceId>
             <name>SendXendAppNotification</name>
             <run>
-                SendXendAppNotification(lul_device, lul_settings.Subject or "",  lul_settings.Message or "",  lul_settings.Channel or "" )
+                SendXendAppNotification(lul_device, lul_settings.Subject or "",  lul_settings.Message or "",  lul_settings.Channel or "")
             </run>
         </action>
-                        
-        
-        
+
     </actionList>
 </implementation>
